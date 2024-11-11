@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <canvas id="canvas" width="800" height="600" style="border:1px solid blue;">
+        Your browser does not support the HTML5 canvas tag.
+    </canvas>
+    <script>
+        "use strict";
+        let canvas;
+        let context;
+        let x = 50;
+        let y = 300;
+        let radius = 50;
+        let speedX = 2;
+        let speedY = 2;
+        let ballColor = '#FFFFFF';  // Màu mặc định của quả bóng
+
+        window.onload = init;
+
+        function init() {
+            canvas = document.getElementById('canvas');
+            context = canvas.getContext('2d');
+
+            // Thêm sự kiện click để thay đổi màu quả bóng
+            canvas.addEventListener('click', changeColor);
+
+            // Bắt đầu vòng lặp vẽ
+            draw();
+        }
+
+        function createGradientBackground() {
+            // Tạo gradient cho nền canvas
+            let gradient = context.createLinearGradient(0, 0, canvas.width, canvas.height);
+            gradient.addColorStop(0, '#ff8080'); 
+            gradient.addColorStop(1, '#0099b0');
+
+            // Áp dụng gradient làm màu nền cho canvas
+            context.fillStyle = gradient;
+            context.fillRect(0, 0, canvas.width, canvas.height); 
+        }
+
+        function draw() {
+            // Xóa canvas mỗi khung hình để vẽ lại
+            context.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Vẽ lại nền gradient mỗi lần vẽ
+            createGradientBackground();
+
+            // Vẽ quả bóng với màu được chọn
+            context.fillStyle = ballColor;
+            context.beginPath();
+            context.arc(x, y, radius, 0, 2 * Math.PI);
+            context.fill();
+            context.stroke();
+
+            // Cập nhật vị trí quả bóng
+            x += speedX;
+            y += speedY;
+
+            // Kiểm tra và xử lý khi quả bóng chạm vào các cạnh canvas
+            if (x + radius > canvas.width || x - radius < 0) {
+                speedX = -speedX;
+            }
+
+            if (y + radius > canvas.height || y - radius < 0) {
+                speedY = -speedY;
+            }
+
+            // Yêu cầu vẽ lại khung hình tiếp theo
+            requestAnimationFrame(draw);
+        }
+
+        function changeColor() {
+            // Thay đổi màu quả bóng ngẫu nhiên khi click
+              ballColor = getRandomColor();
+        }
+         function getRandomColor() {
+                // Tạo một màu hex ngẫu nhiên
+                const letters = '0123456789ABCDEF';
+                let color = '#';
+                for (let i = 0; i < 6; i++) {
+                    color += letters[Math.floor(Math.random() * 16)];
+                }
+                return color;
+            }
+    </script>
+</body>
+
+</html>

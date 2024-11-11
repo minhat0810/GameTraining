@@ -1,0 +1,10 @@
+giữ tốc độ di chuyển đối với các loại màn.
+vd: v*deltaTime
+
+Repo: GameTraining
+ -Phase1
+	-Topic1 (vd: physic)
+		- collision(vd)
+			-handle
+			-ex
+			-readme
