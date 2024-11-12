@@ -47,7 +47,7 @@ class Circle {
         this.radius = 20;
     }
 
-    updatePosition() {
+    updatePositionBall() {
         this.position = Vector.addVectors(this.position, this.velocity);
         
         if (this.position.x <= this.radius || this.position.x >= canvas.width - this.radius) {
@@ -97,7 +97,7 @@ function gameLoop() {
     updatePosition();
     //drawCircle(position);
     circles.forEach(circle => {
-        circle.updatePosition();
+        circle.updatePositionBall();
         circle.draw();
     });
     requestAnimationFrame(gameLoop); // Call gameLoop on the next frame
