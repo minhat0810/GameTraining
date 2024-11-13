@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <canvas id="gameCanvas" width="600" height="400" style="border:1px solid lightgrey;"></canvas>
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const context = canvas.getContext("2d");
+        // Tạo HCN
+       class Rectangle {
+            constructor(x, y, mass, vx, vy) {
+                this.x = x;         
+                this.y = y;         
+                this.width = 70;  
+                this.height = 50; 
+                this.mass = mass;   
+                this.vx = vx;       
+                this.vy = vy;       
+            }
+           draw() {
+               // Draw a simple square
+               context.fillStyle = '#ff8080';
+               context.fillRect(this.x, this.y, this.width, this.height);
+
+           }
+            // Hàm cập nhật vị trí dựa trên vận tốc hiện tại
+              update(secondsPassed) {
+               // Move with set velocity
+                this.x += this.vx * secondsPassed;
+                this.y += this.vy * secondsPassed;
+           }
+        }
+        // Tính toán lại vận tốc sau va chạm
+        // B1: Pháp tuyến va chạm: vector vuông góc với bề mặt va chạm.
+        // B2: Phản xạ vận tốc: Tính toán vận tốc sau va chạm bằng cách sử dụng công thức phản xạ.
+
+        //Tính toán va chạm
+        function handleCollision(rect, normal) {
+                // Chuẩn hóa vector pháp tuyến
+                const distance = Math.sqrt(normal.x * normal.x + normal.y * normal.y);
+                const nx = normal.x / distance;
+                const ny = normal.y / distance;
+
+                // Tính toán tích vô hướng giữa vận tốc và pháp tuyến
+                const dotProduct = rect.vx * nx + rect.vy * ny;
+
+                // Tính toán sự thay đổi vận tốc (phản xạ/xung lượng)
+                const impulse = 2 * dotProduct / rect.mass;
+
+                // Cập nhật vận tốc sau va chạm
+                rect.vx -= impulse * nx;
+                rect.vy -= impulse * ny;
+            }
+    const rect = new Rectangle(50, 50,2,50,50);
+
+     let oldTimeStamp = 0;
+      function gameLoop(timeStamp) {
+                    secondsPassed = (timeStamp - oldTimeStamp) / 1000;
+                    oldTimeStamp = timeStamp;
+
+                    rect.update(secondsPassed);
+                    context.clearRect(0, 0, canvas.width, canvas.height); // Xóa canvas trước khi vẽ
+                    rect.draw();
+                    window.requestAnimationFrame(gameLoop);
+                }
+    window.requestAnimationFrame(gameLoop);
+    </script>
+</body>
+
+</html>
