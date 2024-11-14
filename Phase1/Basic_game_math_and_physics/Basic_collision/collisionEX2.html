@@ -9,16 +9,22 @@
 
 <body>
     <canvas id="gameCanvas" width="600" height="400" style="border:1px solid lightgrey;"></canvas>
+        <div id="velocityDisplay">
+            <p>Vận tốc hình chữ nhật 1: (vx: <span id="vx1">0</span>, vy: <span id="vy1">0</span>)</p>
+            <p>Vận tốc hình chữ nhật 2: (vx: <span id="vx2">0</span>, vy: <span id="vy2">0</span>)</p>
+        </div>
+        
     <script>
         const canvas = document.getElementById("gameCanvas");
         const context = canvas.getContext("2d");
+        const restitution = 0.90;
         // Tạo HCN
        class Rectangle {
             constructor(x, y, mass, vx, vy) {
                 this.x = x;         
                 this.y = y;         
-                this.width = 70;  
-                this.height = 50; 
+                this.width = 100;  
+                this.height = 70; 
                 this.mass = mass;   
                 this.vx = vx;       
                 this.vy = vy;       
@@ -29,45 +35,101 @@
                context.fillRect(this.x, this.y, this.width, this.height);
 
            }
+
             // Hàm cập nhật vị trí dựa trên vận tốc hiện tại
               update(secondsPassed) {
                // Move with set velocity
                 this.x += this.vx * secondsPassed;
                 this.y += this.vy * secondsPassed;
+                this.checkBoundaryCollision();
+           }
+           checkBoundaryCollision() {
+               // Kiểm tra va chạm với viền bên trái và phải của canvas
+               if (this.x + this.width > canvas.width) {
+                   this.vx = -Math.abs(this.vx); // Đảo chiều vận tốc và áp dụng độ đàn hồi
+                   this.x = canvas.width - this.width; // Đặt vị trí x để không vượt quá biên
+               } else if (this.x < 0) {
+                   this.vx = Math.abs(this.vx);
+                   this.x = 0;
+               }
+
+               // Kiểm tra va chạm với viền trên và dưới của canvas
+               if (this.y + this.height > canvas.height) {
+                   this.vy = -Math.abs(this.vy) * restitution;
+                   this.y = canvas.height - this.height;
+               } else if (this.y < 0) {
+                   this.vy = Math.abs(this.vy) * restitution;
+                   this.y = 0;
+               }
            }
         }
         // Tính toán lại vận tốc sau va chạm
         // B1: Pháp tuyến va chạm: vector vuông góc với bề mặt va chạm.
         // B2: Phản xạ vận tốc: Tính toán vận tốc sau va chạm bằng cách sử dụng công thức phản xạ.
 
+        //Xác định pháp tuyến va chạm.
+        function calculateNormal(rect1, rect2) {
+            let dx = rect2.x - rect1.x;
+            let dy = rect2.y - rect1.y;
+            let distance = Math.sqrt(dx * dx + dy * dy);
+
+            // Chuẩn hóa pháp tuyến
+            return { nx: dx / distance, ny: dy / distance };
+        }
+        // Hàm tính thành phần vận tốc dọc theo pháp tuyến (dot product)
+            function getVelocityAlongNormal(rect, nx, ny) {
+                return rect.vx * nx + rect.vy * ny;
+            }
+
         //Tính toán va chạm
         function handleCollision(rect, normal) {
-                // Chuẩn hóa vector pháp tuyến
-                const distance = Math.sqrt(normal.x * normal.x + normal.y * normal.y);
-                const nx = normal.x / distance;
-                const ny = normal.y / distance;
+                //Bước 1: Chuẩn hóa vector pháp tuyến
+                    const { nx, ny } = calculateNormal(rect1, rect2);
 
-                // Tính toán tích vô hướng giữa vận tốc và pháp tuyến
-                const dotProduct = rect.vx * nx + rect.vy * ny;
+                //Bước 2: Tính toán tích vô hướng giữa vận tốc và pháp tuyến
+                    let v1n = getVelocityAlongNormal(rect1, nx, ny);
+                    let v2n = getVelocityAlongNormal(rect2, nx, ny);
 
-                // Tính toán sự thay đổi vận tốc (phản xạ/xung lượng)
-                const impulse = 2 * dotProduct / rect.mass;
+                 // Bước 3: Tính toán vận tốc mới dọc theo pháp tuyến sau va chạm
+                    let newV1n = (v1n * (rect1.mass - rect2.mass) + 2 * rect2.mass * v2n) / (rect1.mass + rect2.mass);
+                    let newV2n = (v2n * (rect2.mass - rect1.mass) + 2 * rect1.mass * v1n) / (rect1.mass + rect2.mass);
 
-                // Cập nhật vận tốc sau va chạm
-                rect.vx -= impulse * nx;
-                rect.vy -= impulse * ny;
+                 // Bước 4: Chuyển đổi lại thành vận tốc trên các trục x và y
+                    rect1.vx = rect1.vx + (newV1n - v1n) * nx;
+                    rect1.vy = rect1.vy + (newV1n - v1n) * ny;
+                    rect2.vx = rect2.vx + (newV2n - v2n) * nx;
+                    rect2.vy = rect2.vy + (newV2n - v2n) * ny;
+
+            document.getElementById('vx1').textContent = rect1.vx.toFixed(2);
+            document.getElementById('vy1').textContent = rect1.vy.toFixed(2); 
+            document.getElementById('vx2').textContent = rect2.vx.toFixed(2); 
+            document.getElementById('vy2').textContent = rect2.vy.toFixed(2);
             }
-    const rect = new Rectangle(50, 50,2,50,50);
+      const rect1 = new Rectangle(50, 40, 2, 100, 40);
+      const rect2 = new Rectangle(300, 50, 1, -70, 60);
 
-     let oldTimeStamp = 0;
-      function gameLoop(timeStamp) {
-                    secondsPassed = (timeStamp - oldTimeStamp) / 1000;
-                    oldTimeStamp = timeStamp;
+    let oldTimeStamp = 0;
+    function gameLoop(timeStamp) {
+        const secondsPassed = (timeStamp - oldTimeStamp) / 1000;
+        oldTimeStamp = timeStamp;
 
-                    rect.update(secondsPassed);
-                    context.clearRect(0, 0, canvas.width, canvas.height); // Xóa canvas trước khi vẽ
-                    rect.draw();
-                    window.requestAnimationFrame(gameLoop);
+        // Cập nhật vị trí của các hình chữ nhật
+        rect1.update(secondsPassed);
+        rect2.update(secondsPassed);
+
+        // Kiểm tra va chạm (kiểm tra va chạm giữa hai hình chữ nhật)
+        if (rect1.x + rect1.width > rect2.x && rect1.x < rect2.x + rect2.width &&
+            rect1.y + rect1.height > rect2.y && rect1.y < rect2.y + rect2.height) {
+            // Gọi hàm xử lý va chạm nếu hai hình chữ nhật va chạm
+            handleCollision(rect1, rect2);
+        }
+
+        // Xóa canvas và vẽ lại các hình chữ nhật
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        rect1.draw();
+        rect2.draw();
+
+        window.requestAnimationFrame(gameLoop);
                 }
     window.requestAnimationFrame(gameLoop);
     </script>
