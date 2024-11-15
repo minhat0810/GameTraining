@@ -21,7 +21,7 @@
         // Define the edges of the canvas
         const canvasWidth = 600;
         const canvasHeight = 600;
-        const gridSize = 100;
+        const gridSize = 60;
         const worldWidth = canvas.width;
         const worldHeight = canvas.height;
         const cellWidth = 100;
@@ -36,7 +36,7 @@
                 // Vẽ các đường dọc
                 for (let x = 0; x <= worldWidth; x += gridSize) {
                     context.beginPath();
-                    context.moveTo(x, 0);
+                        context.moveTo(x, 0);
                     context.lineTo(x, worldHeight);
                     context.stroke();
                 }
@@ -48,15 +48,26 @@
                     context.lineTo(worldWidth, y);
                     context.stroke();
                 }
-            }
-                    function drawObject(x, y, color = 'blue') {
-                            context.fillStyle = color;
-                            context.fillRect(x, y, gridSize, gridSize);
-                        }
+            }   
             function getGridCell(x, y) {
                     const col = Math.floor(x / gridSize);
                     const row = Math.floor(y / gridSize);
                     return { row, col };
+            }
+
+            function highlightGridCell(object) {
+                    const startRow = Math.floor(object.y / gridSize);
+                    const endRow = Math.floor((object.y + object.height) / gridSize);
+                    const startCol = Math.floor(object.x / gridSize);
+                    const endCol = Math.floor((object.x + object.width) / gridSize);
+
+                    context.fillStyle = 'rgba(211, 211, 211, 0.2)'; // Màu xám nhạt
+
+                    for (let row = startRow; row <= endRow; row++) {
+                        for (let col = startCol; col <= endCol; col++) {
+                            context.fillRect(col * gridSize, row * gridSize, gridSize, gridSize);
+                        }
+                    }
                 }
 
         // Set a restitution, a lower value will lose more energy when colliding
@@ -87,11 +98,14 @@
             }
 
             draw() {
+                 highlightGridCell(this); // Tô màu ô lướ
+
                 // Draw a simple square
                 this.context.fillStyle = this.isColliding ? '#ff8080' : '#0099b0';
                 this.context.fillRect(this.x, this.y, this.width, this.height);
 
                 const { row, col } = getGridCell(this.x, this.y);
+                
              //   this.context.fillRect(row,col,this.width,this.height);
                 console.log(`Square at grid cell: row ${row}, col ${col}`);
             }
@@ -131,11 +145,25 @@
                 super(context, x, y, vx, vy);
 
                 // Set default radius
-                this.radius = radius || 25;
+                this.radius = radius || 30;
             }
 
 
             draw() {
+
+                const startRow = Math.floor((this.y - this.radius) / gridSize);
+                const endRow = Math.floor((this.y + this.radius) / gridSize);
+                const startCol = Math.floor((this.x - this.radius) / gridSize);
+                const endCol = Math.floor((this.x + this.radius) / gridSize);
+
+                context.fillStyle = 'rgba(211, 211, 211, 0.2)';  // Màu xám nhạt
+
+                for (let row = startRow; row <= endRow; row++) {
+                    for (let col = startCol; col <= endCol; col++) {
+                        context.fillRect(col * gridSize, row * gridSize, gridSize, gridSize);
+                    }
+                }
+
                 // Draw a simple circle
                 this.context.beginPath();
                 this.context.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
@@ -170,16 +198,7 @@
         }
 
 
-        function createWorld() {
-            gameObjects = [
-                new Circle(context, 250, 50, 0, 50),
-                new Circle(context, 250, 300, 0, -50),
-                new Circle(context, 150, 50, 50, 50),
-                new Square(context, 250, 150, 50, 50),
-                new Square(context, 350, 75, -50, 50),
-                new Square(context, 300, 300, 50, -50)
-            ];
-        }
+       
         function clearCanvas() {
             context.clearRect(0, 0, canvas.width, canvas.height);
         }
@@ -332,7 +351,16 @@
             }
             return false;
         }
-
+         function createWorld() {
+                gameObjects = [
+                    new Circle(context, 250, 50, 100, 20),
+                    new Circle(context, 250, 300, 100, -150),
+                    new Circle(context, 150, 50, 150, 150),
+                    new Square(context, 250, 150, 200, 200),
+                    new Square(context, 350, 75, -200, 150),
+                    new Square(context, 300, 300, 150, -200)
+                ];
+            }
         let oldTimeStamp = 0;
         function gameLoop(timeStamp) {
             secondsPassed = (timeStamp - oldTimeStamp) / 1000;
