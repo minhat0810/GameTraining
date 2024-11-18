@@ -5,70 +5,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <style>
-        body{
-            text-align: center;
-        }
-    </style>
 </head>
 
 <body>
-    <canvas id="gameCanvas" width="600" height="600" style="border:1px solid lightgrey;"></canvas>
+    <canvas id="gameCanvas" width="600" height="400" style="border:1px solid lightgrey;"></canvas>
     <script>
         const canvas = document.getElementById("gameCanvas");
         const context = canvas.getContext("2d");
         const g = 9.81;
         // Define the edges of the canvas
         const canvasWidth = 600;
-        const canvasHeight = 600;
-        const gridSize = 60;
-        const worldWidth = canvas.width;
-        const worldHeight = canvas.height;
-        const cellWidth = 100;
-        const cellHeight = 100;
-
-            // Hàm để vẽ hệ thống lưới
-            function drawGrid() {
-                context.clearRect(0, 0, worldWidth, worldHeight);
-                context.strokeStyle = '#ccc'; // Màu đường viền của ô lưới
-                context.lineWidth = 1;
-
-                // Vẽ các đường dọc
-                for (let x = 0; x <= worldWidth; x += gridSize) {
-                    context.beginPath();
-                    context.moveTo(x, 0);
-                    context.lineTo(x, worldHeight);
-                    context.stroke();
-                }
-
-                // Vẽ các đường ngang
-                for (let y = 0; y <= worldHeight; y += gridSize) {
-                    context.beginPath();
-                    context.moveTo(0, y);
-                    context.lineTo(worldWidth, y);
-                    context.stroke();
-                }
-            }   
-            function getGridCell(x, y) {
-                    const col = Math.floor(x / gridSize);
-                    const row = Math.floor(y / gridSize);
-                    return { row, col };
-            }
-
-            function highlightGridCell(object) {
-                    const startRow = Math.floor(object.y / gridSize);
-                    const endRow = Math.floor((object.y + object.height) / gridSize);
-                    const startCol = Math.floor(object.x / gridSize);
-                    const endCol = Math.floor((object.x + object.width) / gridSize);
-
-                    context.fillStyle = 'rgba(211, 211, 211, 0.2)'; // Màu xám nhạt
-
-                    for (let row = startRow; row <= endRow; row++) {
-                        for (let col = startCol; col <= endCol; col++) {
-                            context.fillRect(col * gridSize, row * gridSize, gridSize, gridSize);
-                        }
-                    }
-                }
+        const canvasHeight = 400;
 
         // Set a restitution, a lower value will lose more energy when colliding
         const restitution = 0.90;
@@ -93,29 +40,23 @@
                 super(context, x, y, vx, vy);
 
                 // Set default width and height
-                this.width = 70;
-                this.height = 50;
+                this.width = 500;
+                this.height = 5;
             }
 
             draw() {
-                 highlightGridCell(this); // Tô màu ô lướ
-
                 // Draw a simple square
                 this.context.fillStyle = this.isColliding ? '#ff8080' : '#0099b0';
                 this.context.fillRect(this.x, this.y, this.width, this.height);
 
-                const { row, col } = getGridCell(this.x, this.y);
-                
-             //   this.context.fillRect(row,col,this.width,this.height);
-                console.log(`Square at grid cell: row ${row}, col ${col}`);
             }
 
             update(secondsPassed) {
                 //thêm gia tốc trọng trường
                 // this.vy += g * secondsPassed;
                 // Move with set velocity
-                this.x += this.vx * secondsPassed;
-                this.y += this.vy * secondsPassed;
+                // this.x += this.vx * secondsPassed;
+                // this.y += this.vy * secondsPassed;
                 this.checkBoundaryCollision();
             }
             checkBoundaryCollision() {
@@ -145,25 +86,11 @@
                 super(context, x, y, vx, vy);
 
                 // Set default radius
-                this.radius = radius || 30;
+                this.radius = radius || 20;
             }
 
 
             draw() {
-
-                const startRow = Math.floor((this.y - this.radius) / gridSize);
-                const endRow = Math.floor((this.y + this.radius) / gridSize);
-                const startCol = Math.floor((this.x - this.radius) / gridSize);
-                const endCol = Math.floor((this.x + this.radius) / gridSize);
-
-                context.fillStyle = 'rgba(211, 211, 211, 0.2)';  // Màu xám nhạt
-
-                for (let row = startRow; row <= endRow; row++) {
-                    for (let col = startCol; col <= endCol; col++) {
-                        context.fillRect(col * gridSize, row * gridSize, gridSize, gridSize);
-                    }
-                }
-
                 // Draw a simple circle
                 this.context.beginPath();
                 this.context.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
@@ -197,11 +124,6 @@
             }
         }
 
-
-       
-        function clearCanvas() {
-            context.clearRect(0, 0, canvas.width, canvas.height);
-        }
         function detectEdgeCollisions() {
             let obj;
             for (let i = 0; i < gameObjects.length; i++) {
@@ -227,6 +149,7 @@
             }
         }
 
+
         function detectCollisions() {
             let obj1;
             let obj2;
@@ -241,7 +164,7 @@
                 obj1 = gameObjects[i];
                 for (let j = i + 1; j < gameObjects.length; j++) {
                     obj2 = gameObjects[j];
-                    // Va chạm giữa hai hình tròn (circle-circle)
+
                     if (obj1 instanceof Circle && obj2 instanceof Circle) {
                         if (circleIntersect(obj1.x, obj1.y, obj1.radius, obj2.x, obj2.y, obj2.radius)) {
                             obj1.isColliding = true;
@@ -271,90 +194,93 @@
                 }
             }
         }
-        function handleCollision(obj1, obj2) {
-            // Xử lý thay đổi vận tốc sau va chạm
-            let vCollision = { x: obj2.x - obj1.x, y: obj2.y - obj1.y };
-            let distance = Math.sqrt(vCollision.x * vCollision.x + vCollision.y * vCollision.y);
-            let vCollisionNorm = { x: vCollision.x / distance, y: vCollision.y / distance };
-            let vRelativeVelocity = { x: obj1.vx - obj2.vx, y: obj1.vy - obj2.vy };
-            let speed = vRelativeVelocity.x * vCollisionNorm.x + vRelativeVelocity.y * vCollisionNorm.y;
+        function detectCollisions(dt) {
+            let obj1, obj2;
 
-            if (speed < 0) return;
-
-            obj1.vx -= speed * vCollisionNorm.x;
-            obj1.vy -= speed * vCollisionNorm.y;
-            obj2.vx += speed * vCollisionNorm.x;
-            obj2.vy += speed * vCollisionNorm.y;
-        }
-
-        function rectIntersect(x1, y1, w1, h1, x2, y2, w2, h2) {
-            // Check x and y for overlap
-            if (x2 > w1 + x1 || x1 > w2 + x2 || y2 > h1 + y1 || y1 > h2 + y2) {
-                return false;
+            for (let i = 0; i < gameObjects.length; i++) {
+                gameObjects[i].isColliding = false;
             }
-            return true;
-        }
 
-        function circleIntersect(x1, y1, r1, x2, y2, r2) {
+            for (let i = 0; i < gameObjects.length; i++) {
+                obj1 = gameObjects[i];
+                for (let j = i + 1; j < gameObjects.length; j++) {
+                    obj2 = gameObjects[j];
 
-            // Calculate the distance between the two circles
-            let squareDistance = (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2);
+                    if (obj1 instanceof Circle && obj2 instanceof Square) {
+                        let circle = obj1;
+                        let rect = obj2;
 
-            // When the distance is smaller or equal to the sum
-            // of the two radius, the circles touch or overlap
-            return squareDistance <= ((r1 + r2) * (r1 + r2))
-        }
+                        if ((obj1 instanceof Circle && obj2 instanceof Square) || (obj1 instanceof Square && obj2 instanceof Circle)) {
+                            let circle = obj1 instanceof Circle ? obj1 : obj2;
+                            let rect = obj1 instanceof Square ? obj1 : obj2;
 
-        function circleRect(cx, cy, radius, rx, ry, rw, rh) {
-            let testX = cx;
-            let testY = cy;
-
-            // xác định cạnh va chạm
-            
-            if (cx < rx) testX = rx;
-            else if (cx > rx + rw) testX = rx + rw;
-            if (cy < ry) testY = ry;
-            else if (cy > ry + rh) testY = ry + rh;
-
-            let distX = cx - testX;
-            let distY = cy - testY;
-            let distance = Math.sqrt((distX * distX) + (distY * distY));
-
-
-            if (distance <= radius) {
-             //   console.log(distance);
-                return true;
+                                handleCollision(circle, rect, dt);
+                        }
+                    }
+                }
             }
-            return false;
         }
-         function createWorld() {
-                gameObjects = [
-                    new Circle(context, 250, 50, 100, 20),
-                    new Circle(context, 250, 300, 100, -150),
-                    new Circle(context, 150, 50, 150, 150),
-                    new Square(context, 250, 150, 200, 200),
-                    new Square(context, 350, 75, -200, 150),
-                    new Square(context, 300, 300, 150, -200)
-                ];
+
+        function handleCollision(circle, rect, dt) {
+            // Vị trí dự đoán
+            const xfuture = circle.x + circle.x * dt;
+            const yfuture = circle.y + circle.y * dt;
+            console.log(xfuture);
+            if(yfuture > rect.y - rect.height){
+                circle.y = rect.y - rect.height - circle.radius;
+                 circle.vy = -circle.vy * restitution; // Phản xạ theo trục Y
             }
+
+            // Kiểm tra phía va chạm và điều chỉnh vận tốc
+            // let closestX = Math.max(rect.x, Math.min(xfuture.x, rect.x + rect.width));
+            // let closestY = Math.max(rect.y, Math.min(yfuture.y, rect.y + rect.height));
+
+            // let distX = xfuture - closestX;
+            // let distY = yfuture - closestY;
+
+            // // Nếu va chạm theo phương ngang
+            // if (Math.abs(distX) > Math.abs(distY)) {
+            //     circle.vx = -circle.vx * restitution; // Phản xạ theo trục X
+            // } else {
+            //     circle.vy = -circle.vy * restitution; // Phản xạ theo trục Y
+            // }
+
+            // // Điều chỉnh vị trí để tránh lọt vào hình vuông
+            // if (circle.vy < 0) circle.y = rect.y - circle.radius; // Đẩy lên trên
+            // else if (circle.vy > 0) circle.y = rect.y + rect.height + circle.radius; // Đẩy xuống dưới
+
+            // if (circle.vx < 0) circle.x = rect.x - circle.radius; // Đẩy sang trái
+            // else if (circle.vx > 0) circle.x = rect.x + rect.width + circle.radius; // Đẩy sang phải
+        }
+
+        function createWorld() {
+            gameObjects = [
+                new Circle(context, 300, 100, 0, 20000, 25),
+                new Square(context, 10, 300, 0, 0),
+            ];
+        }
+        function clearCanvas() {
+            context.clearRect(0, 0, canvas.width, canvas.height);
+        }
         let oldTimeStamp = 0;
         function gameLoop(timeStamp) {
             secondsPassed = (timeStamp - oldTimeStamp) / 1000;
             oldTimeStamp = timeStamp;
-             
+
             // Loop over all game objects
             for (let i = 0; i < gameObjects.length; i++) {
                 gameObjects[i].update(secondsPassed);
             }
-            detectCollisions();
+
+            detectCollisions(secondsPassed);
             detectEdgeCollisions();
             clearCanvas();
-            drawGrid();
+
             // Do the same to draw
             for (let i = 0; i < gameObjects.length; i++) {
                 gameObjects[i].draw();
             }
-            
+
             window.requestAnimationFrame(gameLoop);
         }
 
