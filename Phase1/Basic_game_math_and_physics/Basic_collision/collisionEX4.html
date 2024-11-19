@@ -19,6 +19,7 @@
 
         // Set a restitution, a lower value will lose more energy when colliding
         const restitution = 0.90;
+        const gravity = 0.5;
 
 
         class GameObject {
@@ -149,51 +150,6 @@
             }
         }
 
-
-        function detectCollisions() {
-            let obj1;
-            let obj2;
-
-            // Reset collision state of all objects
-            for (let i = 0; i < gameObjects.length; i++) {
-                gameObjects[i].isColliding = false;
-            }
-
-            // Start checking for collisions
-            for (let i = 0; i < gameObjects.length; i++) {
-                obj1 = gameObjects[i];
-                for (let j = i + 1; j < gameObjects.length; j++) {
-                    obj2 = gameObjects[j];
-
-                    if (obj1 instanceof Circle && obj2 instanceof Circle) {
-                        if (circleIntersect(obj1.x, obj1.y, obj1.radius, obj2.x, obj2.y, obj2.radius)) {
-                            obj1.isColliding = true;
-                            obj2.isColliding = true;
-                            handleCollision(obj1, obj2);
-                        }
-                    }
-                    // Va chạm giữa hai hình chữ nhật (rect-rect)
-                    else if (obj1 instanceof Square && obj2 instanceof Square) {
-                        if (rectIntersect(obj1.x, obj1.y, obj1.width, obj1.height, obj2.x, obj2.y, obj2.width, obj2.height)) {
-                            obj1.isColliding = true;
-                            obj2.isColliding = true;
-                            handleCollision(obj1, obj2);
-                        }
-                    }
-                    // Va chạm giữa hình tròn và hình chữ nhật (circle-rect)
-                    else if ((obj1 instanceof Circle && obj2 instanceof Square) || (obj1 instanceof Square && obj2 instanceof Circle)) {
-                        let circle = obj1 instanceof Circle ? obj1 : obj2;
-                        let rect = obj1 instanceof Square ? obj1 : obj2;
-
-                        if (circleRect(circle.x, circle.y, circle.radius, rect.x, rect.y, rect.width, rect.height)) {
-                            circle.isColliding = true;
-                            rect.isColliding = true;
-                            handleCollision(circle, rect);
-                        }
-                    }
-                }
-            }
-        }
         function detectCollisions(dt) {
             let obj1, obj2;
 
@@ -230,27 +186,6 @@
                 circle.y = rect.y - rect.height - circle.radius;
                  circle.vy = -circle.vy * restitution; // Phản xạ theo trục Y
             }
-
-            // Kiểm tra phía va chạm và điều chỉnh vận tốc
-            // let closestX = Math.max(rect.x, Math.min(xfuture.x, rect.x + rect.width));
-            // let closestY = Math.max(rect.y, Math.min(yfuture.y, rect.y + rect.height));
-
-            // let distX = xfuture - closestX;
-            // let distY = yfuture - closestY;
-
-            // // Nếu va chạm theo phương ngang
-            // if (Math.abs(distX) > Math.abs(distY)) {
-            //     circle.vx = -circle.vx * restitution; // Phản xạ theo trục X
-            // } else {
-            //     circle.vy = -circle.vy * restitution; // Phản xạ theo trục Y
-            // }
-
-            // // Điều chỉnh vị trí để tránh lọt vào hình vuông
-            // if (circle.vy < 0) circle.y = rect.y - circle.radius; // Đẩy lên trên
-            // else if (circle.vy > 0) circle.y = rect.y + rect.height + circle.radius; // Đẩy xuống dưới
-
-            // if (circle.vx < 0) circle.x = rect.x - circle.radius; // Đẩy sang trái
-            // else if (circle.vx > 0) circle.x = rect.x + rect.width + circle.radius; // Đẩy sang phải
         }
 
         function createWorld() {

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <canvas id="gameCanvas" width="600" height="400" style="border:1px solid lightgrey;"></canvas>
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const context = canvas.getContext("2d");
+
+        let square = {
+            position: { x: canvas.width / 2, y: canvas.height / 2 },
+            size: 50,
+            scale: 1,
+            rotation: 0,
+            color: "blue"
+        };
+
+        let animation = {
+            duration: 3000, // Tổng thời gian (ms)
+            startTime: null
+        };
+
+        // Hàm easing (Ease-Out)
+        function easeOutQuad(t) {
+            return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+        }
+
+        function animateSquare(time) {
+            if (!animation.startTime) animation.startTime = time;
+            const elapsed = time - animation.startTime;
+
+            // Tính t (phần trăm thời gian đã trôi qua)
+            let t = Math.min(elapsed / animation.duration, 1);
+
+            // Áp dụng easing
+            const eased = easeOutQuad(t);
+
+            // Cập nhật scale và rotation
+            square.scale = 1 + eased * 2; // Scale từ 1 đến 3
+            square.rotation = eased * Math.PI * 2; // Quay 360 độ
+
+            // Xóa canvas và vẽ hình vuông mới
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            drawSquare(square);
+
+            // Tiếp tục animation nếu t < 1
+            if (t < 1) requestAnimationFrame(animateSquare);
+        }
+
+        // Hàm vẽ hình vuông
+        function drawSquare({ position, size, scale, rotation, color }) {
+            context.save(); // Lưu trạng thái canvas
+            context.translate(position.x, position.y); // Dịch chuyển tâm canvas
+            context.rotate(rotation); // Xoay canvas
+            context.scale(scale, scale); // Phóng to/thu nhỏ canvas
+            context.fillStyle = color;
+            context.fillRect(-size / 2, -size / 2, size, size); // Vẽ hình vuông tại tâm
+            context.restore(); // Khôi phục trạng thái canvas
+        }
+
+        // Bắt đầu animation
+        requestAnimationFrame(animateSquare);
+    </script>
+</body>
+
+</html>

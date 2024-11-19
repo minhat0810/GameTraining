@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <canvas id="gameCanvas" width="600" height="400" style="border:1px solid lightgrey;"></canvas>
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const context = canvas.getContext("2d");
+
+        // Định nghĩa hình chữ nhật
+        let rectangle = {
+            position: { x: 300, y: 200 }, // Tọa độ trung tâm hình chữ nhật
+            width: 100,
+            height: 50,
+            rotation: 0, // Góc quay ban đầu (radian)
+        };
+
+        function drawRotatedRectangle(rect) {
+            context.save(); // Lưu trạng thái của context
+
+            // Di chuyển gốc tọa độ đến tâm hình chữ nhật
+            context.translate(rect.position.x, rect.position.y);
+
+            // Quay theo góc đã tính toán
+            context.rotate(rect.rotation);
+
+            // Vẽ hình chữ nhật
+            context.fillStyle = "green";
+            context.fillRect(0, -rect.height / 2, rect.width, rect.height); // Vẽ từ góc trên bên trái
+            context.restore(); // Khôi phục lại trạng thái ban đầu
+        }
+
+        function updateRotationToMouse(event) {
+            const mouseX = event.clientX - canvas.offsetLeft; // Tọa độ x của chuột trên canvas
+            const mouseY = event.clientY - canvas.offsetTop; // Tọa độ y của chuột trên canvas
+            console.log(mouseX);
+            
+            // Tính toán sự chênh lệch giữa vị trí hình chữ nhật và chuột
+            const dx = mouseX - rectangle.position.x;
+            const dy = mouseY - rectangle.position.y;
+
+            // Tính toán góc quay từ hình chữ nhật đến chuột bằng hàm atan2
+            rectangle.rotation = Math.atan2(dy, dx); // Góc quay từ hình chữ nhật đến chuột
+        }
+
+        // Lắng nghe sự kiện di chuyển chuột
+        canvas.addEventListener("mousemove", function (event) {
+            updateRotationToMouse(event); // Cập nhật góc quay mỗi khi chuột di chuyển
+        });
+
+        function gameLoop() {
+            context.clearRect(0, 0, canvas.width, canvas.height); // Xóa canvas
+
+            // Vẽ lại hình chữ nhật với góc quay mới
+            drawRotatedRectangle(rectangle);
+
+            requestAnimationFrame(gameLoop); // Tiếp tục vòng lặp
+        }
+
+        gameLoop(); // Bắt đầu vòng lặp game
+    </script>
+</body>
+
+</html>

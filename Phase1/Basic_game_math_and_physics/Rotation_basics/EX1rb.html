@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <canvas id="gameCanvas" width="600" height="400" style="border:1px solid lightgrey;"></canvas>
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const context = canvas.getContext("2d");
+        let rectangles = [
+               { position: { x: 300, y: 200 }, // Center position
+                width: 100,
+                height: 50,
+                rotation: 0, // Initial rotation angle in radians
+                speed: 0.2,    
+            },
+                { position: { x: 200, y: 200 }, width: 80, height: 40, rotation: 0, speed: 0.03 },
+                { position: { x: 400, y: 200 }, width: 100, height: 50, rotation: 0, speed: 0.05 },
+                { position: { x: 300, y: 300 }, width: 60, height: 30, rotation: 0, speed: 0.07 },
+        ];
+        function drawRotatedRectangle(rect) {
+                context.save(); // Save the current context state
+
+                // Move the origin to the rectangle's center
+                context.translate(rect.position.x, rect.position.y);
+
+                // Rotate the context by the rectangle’s rotation
+                context.rotate(rect.rotation);
+
+                // Draw the rectangle (centered at the origin now)
+                context.fillStyle = "green";
+                context.fillRect(-rect.width / 2, -rect.height / 2, rect.width, rect.height);
+
+                context.restore(); // Restore the context to its original state
+            }
+        
+        function updateRotation(rect, speed) {
+                rect.rotation += speed; // Speed is in radians per frame
+        }
+        
+        let oldTimeStamp = 0;
+    function gameLoop() {
+        context.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
+
+       rectangles.forEach(rect => {
+            updateRotation(rect, rect.speed);
+            drawRotatedRectangle(rect);
+        });
+
+        requestAnimationFrame(gameLoop); // Continue the loop
+    }
+
+    gameLoop(); // Start the animation
+    </script>
+</body>
+
+</html>
