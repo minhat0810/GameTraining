@@ -1,0 +1,65 @@
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Document</title>
+    </head>
+    <body>
+        <canvas id="gameCanvas" width="1000" height="600" style="border:1px solid lightgrey;">
+            <img id="myImage" src="/Display_image_spirte_sheet/khayongloi.jpg" alt="" srcset="">
+        </canvas>
+        
+        <script>
+            const canvas = document.getElementById("gameCanvas");
+            const context = canvas.getContext("2d");
+            let img = new Image();
+                img.onload = function () {
+                //    // Define the size of a frame
+                //     let frameWidth = 50;
+                //     let frameHeight = 61;
+                //     // Rows and columns start from 0
+                //     let row = 1;
+                //     let column = 3;
+
+                //     context.drawImage(img, column * frameWidth, row * frameHeight, frameWidth, frameHeight, 10, 30, frameWidth, frameHeight);
+                  
+                //     context.imageSmoothingEnabled = true;
+                //     context.imageSmoothingQuality = 'high';
+                // context.drawImage(img, 100, 0, 200, 50, 10, 30, 400, 100);
+                // Define the number of columns and rows in the sprite
+                    let numColumns = 5;
+                    let numRows = 2;
+
+                    // Define the size of a frame
+                    let frameWidth = img.width / numColumns;;
+                    let frameHeight = img.height / numRows;;
+
+                    // The sprite image frame starts from 0
+                    let currentFrame = 0;
+
+                    setInterval(function () {
+                        // Pick a new frame
+                        currentFrame++;
+
+                        // Make the frames loop
+                        let maxFrame = numColumns * numRows - 1;
+                        if (currentFrame > maxFrame) {
+                            currentFrame = 0;
+                        }
+
+                        // Update rows and columns
+                        let column = currentFrame % numColumns;
+                        let row = Math.floor(currentFrame / numColumns);
+
+                        // Clear and draw
+                        context.clearRect(0, 0, canvas.width, canvas.height);
+                        context.drawImage(img, column * frameWidth, row * frameHeight, frameWidth, frameHeight, 10, 30, frameWidth, frameHeight);
+
+                        //Wait for next step in the loop
+                    }, 100);
+                };
+                img.src = 'https://pattern-fairy-c3a.notion.site/image/https%3A%2F%2Fspicyyoghurt.com%2Fimg%2Ftutorials%2Fdevelop_a_html5_game%2Fsprite_animation.png?table=block&id=14355c64-5255-80d5-bd40-c16ea51cd497&spaceId=3277aec5-986d-49b3-bfeb-3c378bf73e65&width=500&userId=&cache=v2'
+        </script>
+    </body>
+    </html>

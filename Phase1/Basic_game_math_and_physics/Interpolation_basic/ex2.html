@@ -30,9 +30,12 @@
         function easeOutQuad(t) {
             return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
         }
-
+        let lastTime = 0;
         function animateSquare(time) {
             if (!animation.startTime) animation.startTime = time;
+            const deltaTime = time - lastTime;
+            lastTime = time;
+
             const elapsed = time - animation.startTime;
 
             // Tính t (phần trăm thời gian đã trôi qua)

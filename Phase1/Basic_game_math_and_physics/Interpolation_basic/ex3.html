@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <canvas id="spaceCanvas" width="1000" height="600" style="border:1px solid lightgrey;"></canvas>
+    <script>
+        
+        const canvas = document.getElementById("spaceCanvas");
+        const context = canvas.getContext("2d");
+
+        let animation = {
+            duration: 5000, // Tổng thời gian (ms) để hoàn thành 1 vòng
+            startTime: null
+        };
+
+        let planet = {
+            position: { x: 0, y: 0 },
+            radius: 50,
+            scale: 1,
+            rotation: 0, // Góc xoay của hành tinh
+            speed: 0.05,
+        };
+         let ringRotation = 0;
+        const orbit = {
+            center: { x: canvas.width / 2, y: canvas.height / 2 },
+            radius: 200 // Bán kính quỹ đạo
+        };
+
+        // Hàm easing kết hợp gia tốc
+        function easeInOutQuad(t) {
+            return t < 0.5
+                ? 2 * t * t // Gia tốc tăng dần
+                : 1 - Math.pow(-2 * t + 2, 2) / 2; // Giảm tốc
+        }
+
+            // Hàm tạo ngôi sao ngẫu nhiên
+            function drawStars() {
+                const starCount = 50; // Số lượng ngôi sao
+                for (let i = 0; i < starCount; i++) {
+                    const x = Math.random() * canvas.width;
+                    const y = Math.random() * canvas.height;
+                    const radius = Math.random() * 2; // Độ lớn ngôi sao
+                    const alpha = Math.random() * 0.5 + 0.5; // Độ sáng ngôi sao (0.5 đến 1)
+
+                    context.beginPath();
+                    context.arc(x, y, radius, 0, Math.PI * 2);
+                    context.fillStyle = `rgba(255, 255, 255, ${alpha})`; // Màu trắng với độ sáng ngẫu nhiên
+                    context.fill();
+                }
+            }        
+        // Hàm vẽ hành tinh
+        function drawPlanet() {
+            const centerX = planet.position.x;
+            const centerY = planet.position.y;
+            const planetRadius = planet.radius;
+
+
+            // Vẽ nền không gian
+            const gradient = context.createLinearGradient(0, 0, canvas.width, canvas.height);
+            gradient.addColorStop(0, "#000033"); // Dark blue
+            gradient.addColorStop(1, "#000000"); // Black
+            context.fillStyle = gradient;
+            context.fillRect(0, 0, canvas.width, canvas.height);
+
+             drawStars();
+
+            // Vẽ vòng sáng xung quanh hành tinh
+           
+            
+            // Vẽ hành tinh với hiệu ứng xoay
+            context.save();
+            context.translate(centerX, centerY);
+            context.rotate(planet.rotation); // Xoay hành tinh
+       //     context.scale(scale, scale); // Phóng to/thu nhỏ canvas
+            context.beginPath();
+            context.arc(0, 0, planetRadius, 0, Math.PI * 2);
+            const planetGradient = context.createRadialGradient(-20, -20, 10, 0, 0, planetRadius);
+            planetGradient.addColorStop(0, "#00ccff"); // Light blue
+            planetGradient.addColorStop(1, "#003366"); // Dark blue
+            context.fillStyle = planetGradient;
+            context.fill();
+            context.restore();
+
+            // Vẽ vòng hành tinh (ring)
+            context.save();
+            context.translate(centerX, centerY);
+            context.rotate(ringRotation); // Xoay vòng ngoài
+            context.beginPath();
+            context.ellipse(0, 0, planetRadius + 30, planetRadius - 20, Math.PI / 6, 0, Math.PI*2 );
+            context.strokeStyle = "rgba(200, 200, 200, 0.5)";
+            context.lineWidth = 5;
+            context.stroke();
+            context.restore();
+        }
+
+        // Hàm animate để hành tinh di chuyển theo quỹ đạo và tự xoay
+        function animatePlanet(time) {
+            if (!animation.startTime) animation.startTime = time;
+
+            const elapsed = time - animation.startTime;
+
+            // Tính t (phần trăm thời gian đã trôi qua)
+            let t = (elapsed % animation.duration) / animation.duration;
+
+            // Tính easing
+            const eased = easeInOutQuad(t);
+
+            // Góc hiện tại của hành tinh (theo radian)
+            const angle = eased * Math.PI * 2;
+
+            // Cập nhật vị trí hành tinh theo quỹ đạo
+            planet.position.x = orbit.center.x + orbit.radius * Math.cos(angle);
+            planet.position.y = orbit.center.y + orbit.radius * Math.sin(angle);
+
+            // Cập nhật góc xoay của hành tinh
+            planet.rotation += 0.05; // Tăng dần góc để hành tinh xoay liên tụ
+
+            // Cập nhật scale và rotation
+           // planet.scale = 0.01 ;
+            ringRotation += 0.01;
+            // Xóa canvas và vẽ hành tinh
+            context.clearRect(0, 0, canvas.width, canvas.height);
+          //  updateRotation()
+            drawPlanet();
+
+            // Tiếp tục animation
+            requestAnimationFrame(animatePlanet);
+        }
+        // Bắt đầu animation
+        requestAnimationFrame(animatePlanet);
+    </script>
+</body>
+
+</html>
