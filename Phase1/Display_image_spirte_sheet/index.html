@@ -1,65 +1,60 @@
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Document</title>
-    </head>
-    <body>
-        <canvas id="gameCanvas" width="1000" height="600" style="border:1px solid lightgrey;">
-            <img id="myImage" src="/Display_image_spirte_sheet/khayongloi.jpg" alt="" srcset="">
-        </canvas>
-        
-        <script>
-            const canvas = document.getElementById("gameCanvas");
-            const context = canvas.getContext("2d");
-            let img = new Image();
-                img.onload = function () {
-                //    // Define the size of a frame
-                //     let frameWidth = 50;
-                //     let frameHeight = 61;
-                //     // Rows and columns start from 0
-                //     let row = 1;
-                //     let column = 3;
+<!DOCTYPE html>
+<html lang="en">
 
-                //     context.drawImage(img, column * frameWidth, row * frameHeight, frameWidth, frameHeight, 10, 30, frameWidth, frameHeight);
-                  
-                //     context.imageSmoothingEnabled = true;
-                //     context.imageSmoothingQuality = 'high';
-                // context.drawImage(img, 100, 0, 200, 50, 10, 30, 400, 100);
-                // Define the number of columns and rows in the sprite
-                    let numColumns = 5;
-                    let numRows = 2;
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sprite Animation</title>
+</head>
 
-                    // Define the size of a frame
-                    let frameWidth = img.width / numColumns;;
-                    let frameHeight = img.height / numRows;;
+<body>
+    <canvas id="gameCanvas" width="1000" height="600" style="border:1px solid lightgrey;"></canvas>
 
-                    // The sprite image frame starts from 0
-                    let currentFrame = 0;
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const context = canvas.getContext("2d");
 
-                    setInterval(function () {
-                        // Pick a new frame
-                        currentFrame++;
+        // Tạo đối tượng ảnh
+        let img = new Image();
+        img.src = 'https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/cb55318e-deef-4902-bfb4-86d4f58acf67/dff0zuz-d499a191-22b3-46af-a978-199d5217c6a6.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7InBhdGgiOiJcL2ZcL2NiNTUzMThlLWRlZWYtNDkwMi1iZmI0LTg2ZDRmNThhY2Y2N1wvZGZmMHp1ei1kNDk5YTE5MS0yMmIzLTQ2YWYtYTk3OC0xOTlkNTIxN2M2YTYucG5nIn1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmZpbGUuZG93bmxvYWQiXX0.FAipUqqlQk90Q-YP1sFheXSsFQo60juq87u98p7AM5g';
 
-                        // Make the frames loop
-                        let maxFrame = numColumns * numRows - 1;
-                        if (currentFrame > maxFrame) {
-                            currentFrame = 0;
-                        }
+        img.onload = function () {
+            // Định nghĩa kích thước của mỗi frame
+            let frameWidth = 60; // Kích thước chiều rộng mỗi frame
+            let frameHeight = 54; // Kích thước chiều cao mỗi frame
 
-                        // Update rows and columns
-                        let column = currentFrame % numColumns;
-                        let row = Math.floor(currentFrame / numColumns);
+            // Số cột của các hàng
+            let columnsInRow4 = 5; //  hàng thứ 4 có 6 cột
 
-                        // Clear and draw
-                        context.clearRect(0, 0, canvas.width, canvas.height);
-                        context.drawImage(img, column * frameWidth, row * frameHeight, frameWidth, frameHeight, 10, 30, frameWidth, frameHeight);
+            // Chỉ số của hàng thứ 4
+            let row = 3; // Hàng thứ 4 có chỉ số 3 (vì chỉ số bắt đầu từ 0)
 
-                        //Wait for next step in the loop
-                    }, 100);
-                };
-                img.src = 'https://pattern-fairy-c3a.notion.site/image/https%3A%2F%2Fspicyyoghurt.com%2Fimg%2Ftutorials%2Fdevelop_a_html5_game%2Fsprite_animation.png?table=block&id=14355c64-5255-80d5-bd40-c16ea51cd497&spaceId=3277aec5-986d-49b3-bfeb-3c378bf73e65&width=500&userId=&cache=v2'
-        </script>
-    </body>
-    </html>
+            // Biến để theo dõi frame hiện tại
+            let currentFrame = 0; // Bắt đầu từ frame đầu tiên ở hàng thứ 4
+
+            // Cập nhật và vẽ hoạt ảnh
+            setInterval(function () {
+                // Tăng giá trị của frame
+                currentFrame++;
+
+                // Nếu vượt quá số lượng frame, quay lại frame đầu tiên
+                if (currentFrame >= columnsInRow4) {
+                    currentFrame = 0;
+                }
+
+                // Tính toán vị trí cột và hàng của frame trong sprite sheet
+                let column = currentFrame % columnsInRow4; // Cột trong hàng thứ 4
+            
+                // Xóa canvas trước khi vẽ frame mới
+                context.clearRect(0, 0, canvas.width, canvas.height);
+
+
+                // Vẽ frame của sprite lên canvas
+                context.drawImage(img, column * frameWidth, row * frameHeight, frameWidth, frameHeight, 10, 30, frameWidth, frameHeight);
+
+            }, 100); // Cập nhật mỗi 100ms
+        };
+    </script>
+</body>
+
+</html>
