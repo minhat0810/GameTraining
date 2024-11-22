@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sprite Animation</title>
+</head>
+
+<body>
+    <canvas id="gameCanvas" width="1000" height="600" style="border:1px solid lightgrey;"></canvas>
+    
+    <script>
+   // Lấy canvas và ngữ cảnh
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // Kích thước canvas
+    const width = canvas.width;
+    const height = canvas.height;
+
+    // Tải hình ảnh phi thuyền
+    const spaceshipImage = new Image();
+    spaceshipImage.src = './space1.png'; // Đảm bảo có hình ảnh trong cùng thư mục
+
+    // Vị trí và góc phi thuyền
+    let spaceship = {
+        x: width / 2,
+        y: height / 2,
+        angle: 0,
+        speed: 2
+    };
+
+    // Vị trí chuột
+    let mouseX = spaceship.x;
+    let mouseY = spaceship.y;
+
+    // Lắng nghe sự kiện chuột
+    canvas.addEventListener('mousemove', (event) => {
+        const rect = canvas.getBoundingClientRect();
+        mouseX = event.clientX - rect.left;
+        mouseY = event.clientY - rect.top;
+    });
+
+    // Lắng nghe sự kiện phím
+    let keys = {};
+    window.addEventListener('keydown', (event) => {
+        keys[event.code] = true;
+    });
+    window.addEventListener('keyup', (event) => {
+        keys[event.code] = false;
+    });
+
+    // Cập nhật vị trí và góc phi thuyền
+    function update() {
+        // Tính toán góc để quay về con trỏ
+        const dx = mouseX - spaceship.x;
+        const dy = mouseY - spaceship.y;
+        spaceship.angle = Math.atan2(dy, dx);
+
+        // Di chuyển phi thuyền
+        if (keys['ArrowUp']) {
+            spaceship.x += spaceship.speed * Math.cos(spaceship.angle);
+            spaceship.y += spaceship.speed * Math.sin(spaceship.angle);
+        }
+        if (keys['ArrowLeft']) {
+            spaceship.x -= spaceship.speed;
+        }
+        if (keys['ArrowRight']) {
+            spaceship.x += spaceship.speed;
+        }
+        if (keys['ArrowDown']) {
+            spaceship.y += spaceship.speed;
+        }
+    }
+
+    // Vẽ phi thuyền trên canvas
+    function draw() {
+        // Xóa canvas
+        ctx.clearRect(0, 0, width, height);
+
+        // Lưu trạng thái canvas
+        ctx.save();
+
+        // Dịch chuyển đến vị trí phi thuyền
+        ctx.translate(spaceship.x, spaceship.y);
+
+        // Xoay canvas theo góc phi thuyền
+        ctx.rotate(spaceship.angle);
+
+        // Vẽ hình ảnh phi thuyền
+        ctx.drawImage(spaceshipImage, -spaceshipImage.width / 2, -spaceshipImage.height / 2);
+
+        // Khôi phục trạng thái canvas
+        ctx.restore();
+    }
+
+    // Vòng lặp trò chơi
+    function gameLoop() {
+        update();
+        draw();
+        requestAnimationFrame(gameLoop);
+    }
+
+    // Bắt đầu trò chơi khi hình ảnh được tải
+    spaceshipImage.onload = () => {
+        gameLoop();
+    };
+
+    </script>
+</body>
+
+</html>
