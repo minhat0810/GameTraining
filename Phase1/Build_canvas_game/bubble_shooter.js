@@ -1,6 +1,9 @@
 const canvas = document.getElementById("gameCanvas");
 const context = canvas.getContext("2d");
+
 let imgPlayerR = null;
+let mouseX = canvas.width/2;
+let mouseY = canvas.height/2;
 
 class GameManager {
     constructor() {
@@ -36,6 +39,12 @@ class InputController {
         this.keys = {};
         window.addEventListener('keydown', (e) => this.keys[e.key] = true);
         window.addEventListener('keyup', (e) => this.keys[e.key] = false);
+        window.addEventListener("mousemove",(e)=>{
+            updateRotationToMouse(e);
+        })
+        window.addEventListener("click",(e)=>{
+           shootBullet();
+        })
     }
 
     isKeyPressed(key) {
@@ -106,9 +115,10 @@ class Collider {
 }
 
 class CircleCollider extends Collider {
-    constructor(x, y, radius, imageSrc = null, color = 'red') {
+    constructor(x, y, radius, imageSrc = null, color = 'red',speed) {
         super(x, y);
         this.radius = radius;
+        this.speed = speed;
         this.isColliding = false; // Trạng thái va chạm
         this.image = null;
         this.color = color;
@@ -153,8 +163,18 @@ class CircleCollider extends Collider {
         }
     }
 
-    updatePosition(deltaTime) {
-        this.y += this.speed;
+    updatePosition() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+
+        // Nếu chạm cạnh trái hoặc phải canvas
+        if (this.x - this.radius < 0 || this.x + this.radius > canvas.width) {
+            this.speedX = -this.speedX;
+        }
+        // Nếu chạm cạnh trên hoặc dưới canvas
+        if (this.y - this.radius < 0 || this.y + this.radius > canvas.height) {
+            this.speedY = -this.speedY;
+        }
     }
 }
 class Shooter {
@@ -192,19 +212,94 @@ class Shooter {
  
         this.x = Math.max(0, Math.min(canvas.width - this.width, this.x));
     }
+      calculatePrediction() {
+        const maxDistance = 2000; // Tổng khoảng cách đường bắn dự đoán
+        const points = []; // Danh sách các điểm của đường đi
 
-    drawPrediction(mouseX, mouseY) {
+        let currentX = this.x + this.width / 2; // Điểm hiện tại (Shooter)
+        let currentY = this.y;
+        let dx = mouseX - currentX; // Hướng di chuyển ban đầu
+        let dy = mouseY - currentY;
+
+        const angle = Math.atan2(dy, dx);
+        const speed = 20; // Tăng dần khoảng cách cho mỗi bước
+
+        dx = Math.cos(angle) * speed;
+        dy = Math.sin(angle) * speed;
+        console.log(dx);
+        
+        let distanceTraveled = 0;
+
+        // Tính toán điểm va chạm và phản xạ
+        while (distanceTraveled < maxDistance && currentY < canvas.height) {
+            // Nếu chạm cạnh trái hoặc phải canvas
+            if (currentX + dx < 0 || currentX + dx > canvas.width) {
+                dx = -dx; // Đảo ngược hướng x
+            }
+
+            currentX += dx; // Cập nhật vị trí x
+            currentY += dy; // Cập nhật vị trí y
+            distanceTraveled += Math.sqrt(dx * dx + dy * dy);
+          //  console.log(distanceTraveled);
+            
+            points.push({ x: currentX, y: currentY }); // Thêm điểm vào danh sách
+    }
+
+    return points;
+}
+
+
+
+drawPrediction(mouseX, mouseY) {
+        const points = this.calculatePrediction();
+        context.save();
         context.beginPath();
-        context.moveTo(this.x + this.width / 2, this.y); // Vị trí của shooter (trên đỉnh)
-        context.lineTo(mouseX, mouseY); // Tọa độ chuột
-        context.strokeStyle = 'yellow'; // Màu đường thẳng
+        context.moveTo(this.x + this.width / 2, this.y); // Bắt đầu từ vị trí Shooter
+        
+        for (const point of points) {
+            context.lineTo(point.x, point.y); 
+        }
+
         context.lineWidth = 2;
-        context.setLineDash([5, 5]); // Đường kẻ đứt quãng
+        context.setLineDash([5, 5]); // Đường nét đứt
+        context.stroke();
+        context.restore();
+    }
+    calculateAngleToMouse() {
+        const dx = mouseX - this.x;
+        const dy = mouseY - this.y;
+        return Math.atan2(dy, dx); // Trả về góc giữa Shooter và chuột
+    }
+}
+class Bullet extends CircleCollider {
+    constructor(x, y, radius, speed, color,angle) {
+        super(x, y, radius, null, color, speed); 
+        this.angle = angle;
+    }
+
+    // Cập nhật vị trí của viên đạn
+    updatePosition(deltaTime) {
+        this.x += Math.cos(this.angle) * this.speed * deltaTime;
+        this.y += Math.sin(this.angle) * this.speed * deltaTime; // Di chuyển theo hướng chuột
+        if(this.x+this.radius>canvas.width || this.x-this.radius<0){
+             this.angle = Math.PI - this.angle;
+        }
+    }
+
+
+    draw() {
+        context.beginPath();
+        context.arc(this.x, this.y+this.radius, this.radius, 0, 2 * Math.PI);
+        
+        context.fillStyle = this.color;
+        context.fill();
+        context.lineWidth = 2;
+        context.strokeStyle = 'black';
         context.stroke();
     }
 }
 
-
+const bullets = [];
 
 const inputController = new InputController();
 
@@ -232,7 +327,7 @@ function drawGrid(grid) {
             const color = grid[i][j];
             const x = j * ballRadius * 2 + ballRadius; 
             const y = i * ballRadius * 2 + ballRadius; 
-            const circle = new CircleCollider(x, y, ballRadius, null, color); 
+            const circle = new CircleCollider(x, y, ballRadius, null, color,0); 
             circles.push(circle); 
             collisionManager.addCollider(circle); 
         }
@@ -249,7 +344,14 @@ let imgPlayer = "./img/Player/pikachu_tacke.jpg";
 const shoot = new Shooter(canvas.width / 2 - 50, canvas.height - 80, 100, 80, 350, imgPlayer); 
 drawGrid(grid);
 
-// Game loop (simplified)
+
+ function updateRotationToMouse(event) {
+             mouseX = event.clientX - canvas.offsetLeft; // Tọa độ x của chuột trên canvas
+             mouseY = event.clientY - canvas.offsetTop; // Tọa độ y của chuột trên canvas
+           
+ }
+
+
 let lastTime = 0;
 function gameLoop(timeStamp) {
     const deltaTime = (timeStamp - lastTime) / 1000;
@@ -265,10 +367,19 @@ function gameLoop(timeStamp) {
 
     context.clearRect(0, 0, canvas.width, canvas.height);
     drawCircles();
-    
+    shoot.drawPrediction(mouseX,mouseY);
+    for (const bullet of bullets) {
+        bullet.updatePosition(deltaTime); // Cập nhật vị trí viên đạn
+        bullet.draw(); // Vẽ viên đạn
+    }
     shoot.draw();
     collisionManager.checkCollisions();
     requestAnimationFrame(gameLoop);
+}
+function shootBullet() {
+    const angle = shoot.calculateAngleToMouse(); // Tính toán góc bắn
+    const bullet = new Bullet(canvas.width / 2, canvas.height - 100, 20, 500, 'black',angle);
+    bullets.push(bullet);
 }
 
 // Cập nhật lại drawHUD để hiển thị số mạng
