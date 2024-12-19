@@ -4,7 +4,9 @@ const context = canvas.getContext("2d");
 let imgPlayerR = null;
 let mouseX = canvas.width/2;
 let mouseY = canvas.height/2;
+let circle;
 
+///////////////////////////////////// GAME MANAGER ////////////////////////////////////
 class GameManager {
     constructor() {
         this.score = 0;
@@ -34,6 +36,9 @@ const gameManager = new GameManager();
 
 gameManager.setState('paused'); // Changes the game state
 
+///////////////////////////////////// GAME MANAGER ////////////////////////////////////
+
+///////////////////////////////////// INPUT ////////////////////////////////////
 class InputController {
     constructor() {
         this.keys = {};
@@ -51,7 +56,10 @@ class InputController {
         return this.keys[key] || false;
     }
 }
+const inputController = new InputController();
+///////////////////////////////////// INPUT ////////////////////////////////////
 
+///////////////////////////////////// CHECK COLLISION ////////////////////////////////////
 class CollisionManager {
     constructor() {
         this.colliders = [];
@@ -113,6 +121,9 @@ class Collider {
         }
     }
 }
+///////////////////////////////////// CHECK COLLISION ////////////////////////////////////
+
+///////////////////////////////////// BUBBLES ////////////////////////////////////
 
 class CircleCollider extends Collider {
     constructor(x, y, radius, imageSrc = null, color = 'red',speed) {
@@ -177,6 +188,9 @@ class CircleCollider extends Collider {
         }
     }
 }
+///////////////////////////////////// BUBBLES ////////////////////////////////////
+
+///////////////////////////////////// SHOOTER ////////////////////////////////////
 class Shooter {
     constructor(x, y, width, height, speed, imageSrc = null) {
         this.x = x;
@@ -213,14 +227,16 @@ class Shooter {
         this.x = Math.max(0, Math.min(canvas.width - this.width, this.x));
     }
     calculatePrediction() {
-        const maxDistance = 2000; // Tổng khoảng cách đường bắn dự đoán
+        const maxDistance = 2500; // Tổng khoảng cách đường bắn dự đoán
         const points = []; // Danh sách các điểm của đường đi
 
         let currentX = this.x + this.width / 2; // Điểm hiện tại (Shooter)
         let currentY = this.y;
+        console.log(currentX);
+        
         let dx = mouseX - currentX; // Hướng di chuyển ban đầu
         let dy = mouseY - currentY;
-        console.log(dx);
+
         const angle = Math.atan2(dy, dx);
         const speed = 20; // Tăng dần khoảng cách cho mỗi bước
 
@@ -232,7 +248,7 @@ class Shooter {
 
         // Tính toán điểm va chạm và phản xạ
         while (distanceTraveled < maxDistance && currentY < canvas.height) {
-            if (currentX + dx < 0 || currentX + dx > canvas.width) {
+            if (currentX + dx  < 20 || currentX + dx > canvas.width - 20) {
                 dx = -dx; // Đảo ngược hướng x
             }
 
@@ -264,16 +280,23 @@ class Shooter {
     }
 
     calculateAngleToMouse() {
-        const dx = mouseX - this.x - this.width/2 ;
+        const dx = mouseX - this.x - this.width/2;
         const dy = mouseY - this.y ;
         console.log(dx);
         
         return Math.atan2(dy, dx); // Trả về góc giữa Shooter và chuột
     }
 }
+
+///////////////////////////////////// SHOOTER ////////////////////////////////////
+
+///////////////////////////////////// BULLET ////////////////////////////////////
+
 class Bullet extends CircleCollider {
     constructor(x, y, radius, speed, color,angle) {
-        super(x, y, radius, null, color, speed); 
+        const colors = ['red', 'blue', 'green', 'yellow', 'purple'];
+        const randomColor = colors[Math.floor(Math.random() * colors.length)];
+        super(x, y, radius, null, randomColor, speed); 
         this.angle = angle;
     }
 
@@ -299,10 +322,11 @@ class Bullet extends CircleCollider {
     }
 }
 
+
 const bullets = [];
+///////////////////////////////////// BULLET ////////////////////////////////////
 
-const inputController = new InputController();
-
+///////////////////////////////////// GAME WORLD ////////////////////////////////////
 const rows = 4; // Số hàng bóng
 const cols = 10; // Số cột bóng
 const ballRadius = 20; 
@@ -325,9 +349,10 @@ function drawGrid(grid) {
     for (let i = 0; i < grid.length; i++) {
         for (let j = 0; j < grid[i].length; j++) {
             const color = grid[i][j];
-            const x = j * ballRadius * 2 + ballRadius; 
+            const offsetX = (i % 2 === 0) ? 0 : ballRadius; // Dịch ngang cho hàng lẻ
+            const x = j * ballRadius * 2 + ballRadius + offsetX;
             const y = i * ballRadius * 2 + ballRadius; 
-            const circle = new CircleCollider(x, y, ballRadius, null, color,0); 
+            circle = new CircleCollider(x, y, ballRadius, null, color,0); 
             circles.push(circle); 
             collisionManager.addCollider(circle); 
         }
@@ -351,6 +376,38 @@ drawGrid(grid);
            
  }
 
+ let currentBallColor = "";
+ function randomizeBallColor() {
+    currentBallColor = colors[Math.floor(Math.random() * colors.length)]; // Chọn màu ngẫu nhiên
+    // Vẽ quả bóng với màu đã chọn
+    context.beginPath();
+    context.arc(300, canvas.height-100, 20, 0, Math.PI * 2); // Vẽ quả bóng nhỏ tại vị trí
+    context.fillStyle = currentBallColor;
+    context.fill();
+    context.closePath();
+}
+randomizeBallColor();
+
+function shootBullet() {
+    const angle = shoot.calculateAngleToMouse(); // Tính toán góc bắn
+    const bullet = new Bullet(canvas.width / 2, canvas.height - 100, 20, 500, '', angle);
+   // console.log(bullet.x);
+    
+    bullets.push(bullet);
+
+}
+
+ ///////////////////////////////////// GAME WORLD ////////////////////////////////////
+
+  ///////////////////////////////////// HELPER ////////////////////////////////////
+
+// Cập nhật lại drawHUD để hiển thị số mạng
+function drawHUD(context, score, health) {
+    context.fillStyle = 'red';
+    context.font = '20px Arial';
+    context.fillText(`Score: ${score}`, 10, 20);
+    context.fillText(`Health: ${health}`, 10, 40);
+}
 
 let lastTime = 0;
 function gameLoop(timeStamp) {
@@ -376,20 +433,6 @@ function gameLoop(timeStamp) {
     collisionManager.checkCollisions();
     requestAnimationFrame(gameLoop);
 }
-function shootBullet() {
-    const angle = shoot.calculateAngleToMouse(); // Tính toán góc bắn
-    const bullet = new Bullet(canvas.width / 2, canvas.height - 100, 20, 500, 'black', angle);
-    bullets.push(bullet);
-}
-
-// Cập nhật lại drawHUD để hiển thị số mạng
-function drawHUD(context, score, health) {
-    context.fillStyle = 'red';
-    context.font = '20px Arial';
-    context.fillText(`Score: ${score}`, 10, 20);
-    context.fillText(`Health: ${health}`, 10, 40);
-}
-
 gameLoop();
 
 class AudioManager {
