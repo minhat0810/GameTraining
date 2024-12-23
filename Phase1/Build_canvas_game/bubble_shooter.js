@@ -1,10 +1,26 @@
-const canvas = document.getElementById("gameCanvas");
-const context = canvas.getContext("2d");
+const canvas         = document.getElementById("gameCanvas");
+const context        = canvas.getContext("2d");
 
-let imgPlayerR = null;
-let mouseX = canvas.width/2;
-let mouseY = canvas.height/2;
+let imgPlayerR       = null;
+let mouseX           = canvas.width/2;
+let mouseY           = canvas.height/2;
 let circle;
+let currentBallColor = "";
+let isShoot          = true;
+let bullet;
+const rows           = 4; // Số hàng bóng
+const cols           = 10; // Số cột bóng
+const ballRadius     = 20; 
+const grid           = [];
+let currentBall      = null;
+let nextBall         = null;
+const colors = ['red', 'blue', 'green', 'yellow', 'purple'];
+let bulletFist = true;
+/// LEVEL/MAP ////
+let level1 = './map/level1.txt';
+
+
+///
 
 ///////////////////////////////////// GAME MANAGER ////////////////////////////////////
 class GameManager {
@@ -48,7 +64,21 @@ class InputController {
             updateRotationToMouse(e);
         })
         window.addEventListener("click",(e)=>{
-           shootBullet();
+           
+           if(isShoot){
+            const shooting = queue.dequeue(); // Lấy và xóa quả bóng đầu tiên
+
+            const nextBall = getRandomColor();
+            queue.enqueue(nextBall);
+            
+            predictBullet = new Bullet(280,610,10,0,queue.front(),0);
+          //  queue.print();
+            console.log(queue.front());
+            shootBullet(shooting);
+            isShoot = false;
+
+           }
+         
         })
     }
 
@@ -103,22 +133,13 @@ class Collider {
     }
 
     onCollision(other) {
-        if (!this.isColliding) { // Chỉ xử lý nếu chưa va chạm
-            // Cộng điểm và xử lý va chạm
-            if (other.type === 'fruit') {
-                gameManager.updateScore(10); // Cộng điểm khi nhặt fruit
-                audioManager.playSound('collisionFruit');
-            } else if (other.type === 'stone') {
-                gameManager.health = Math.min(gameManager.health + 1, 3); // Hồi mạng khi nhặt stone, tối đa 3 mạng
-                audioManager.playSound('collisionHealth');
-            }
-
-            const index = randomCircles.indexOf(this);
-            if (index > -1) {
-                randomCircles.splice(index, 1);
-                collisionManager.removeCollider(this);
-            }
-        }
+        bullet.speed = 0;
+        bullet.y = bullet.y+1;
+        const row = Math.floor((bullet.y - ballRadius) / (ballRadius * 2));
+        const col = Math.floor((bullet.x - ballRadius) / (ballRadius * 2));
+        // console.log(row);
+        // console.log(col);
+        isShoot = true;
     }
 }
 ///////////////////////////////////// CHECK COLLISION ////////////////////////////////////
@@ -126,13 +147,14 @@ class Collider {
 ///////////////////////////////////// BUBBLES ////////////////////////////////////
 
 class CircleCollider extends Collider {
-    constructor(x, y, radius, imageSrc = null, color = 'red',speed) {
+    constructor(x, y, radius, imageSrc = null, color = 'red',speed,angle) {
         super(x, y);
         this.radius = radius;
         this.speed = speed;
         this.isColliding = false; // Trạng thái va chạm
         this.image = null;
         this.color = color;
+        this.angle = angle;
 
         if (imageSrc) {
             this.image = new Image();
@@ -162,30 +184,32 @@ class CircleCollider extends Collider {
                 this.radius * 2
             );
         } else {
-            // Dự phòng nếu không có hình ảnh
             context.beginPath();
-            context.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
+            context.arc(this.x, this.y+this.radius, this.radius, 0, 2 * Math.PI);
             context.fillStyle = this.color; // Dùng màu sắc được truyền vào
             context.fill();
-
             context.lineWidth = 2;        // Độ dày của viền
             context.strokeStyle = 'black'; // Màu viền
             context.stroke(); 
         }
     }
 
-    updatePosition() {
-        this.x += this.speedX;
-        this.y += this.speedY;
-
-        // Nếu chạm cạnh trái hoặc phải canvas
-        if (this.x - this.radius < 0 || this.x + this.radius > canvas.width) {
-            this.speedX = -this.speedX;
+    updatePosition(deltaTime) {
+        this.x += Math.cos(this.angle) * this.speed * deltaTime ;
+        this.y += Math.sin(this.angle) * this.speed * deltaTime ; // Di chuyển theo hướng chuột
+        if(this.x + this.radius >canvas.width || this.x - this.radius <0){
+             this.angle = Math.PI - this.angle;
         }
-        // Nếu chạm cạnh trên hoặc dưới canvas
-        if (this.y - this.radius < 0 || this.y + this.radius > canvas.height) {
-            this.speedY = -this.speedY;
+        if(this.y < 0){
+            this.speed = 0;
+            this.y = this.y+2;
+            isShoot = true;
         }
+        
+        // if(this.y + this.radius >canvas.height || this.y - this.radius <0){
+        //      //this.angle = Math.PI - this.angle;
+        // }
+        return { y: this.y }
     }
 }
 ///////////////////////////////////// BUBBLES ////////////////////////////////////
@@ -227,28 +251,26 @@ class Shooter {
         this.x = Math.max(0, Math.min(canvas.width - this.width, this.x));
     }
     calculatePrediction() {
-        const maxDistance = 2500; // Tổng khoảng cách đường bắn dự đoán
+        const maxDistance = 500; // Tổng khoảng cách đường bắn dự đoán
         const points = []; // Danh sách các điểm của đường đi
 
         let currentX = this.x + this.width / 2; // Điểm hiện tại (Shooter)
         let currentY = this.y;
-        console.log(currentX);
         
         let dx = mouseX - currentX; // Hướng di chuyển ban đầu
         let dy = mouseY - currentY;
 
         const angle = Math.atan2(dy, dx);
-        const speed = 20; // Tăng dần khoảng cách cho mỗi bước
 
-        dx = Math.cos(angle) * 1;
-        dy = Math.sin(angle) * 1;
+        dx = Math.cos(angle);
+        dy = Math.sin(angle);
        
         
         let distanceTraveled = 0;
 
         // Tính toán điểm va chạm và phản xạ
         while (distanceTraveled < maxDistance && currentY < canvas.height) {
-            if (currentX + dx  < 20 || currentX + dx > canvas.width - 20) {
+            if (currentX + dx  < ballRadius || currentX + dx > canvas.width - ballRadius ) {
                 dx = -dx; // Đảo ngược hướng x
             }
 
@@ -258,7 +280,7 @@ class Shooter {
           //  console.log(distanceTraveled);
             
             points.push({ x: currentX, y: currentY }); // Thêm điểm vào danh sách
-    }
+        }
 
     return points;
     }
@@ -282,10 +304,10 @@ class Shooter {
     calculateAngleToMouse() {
         const dx = mouseX - this.x - this.width/2;
         const dy = mouseY - this.y ;
-        console.log(dx);
         
         return Math.atan2(dy, dx); // Trả về góc giữa Shooter và chuột
     }
+    
 }
 
 ///////////////////////////////////// SHOOTER ////////////////////////////////////
@@ -296,7 +318,7 @@ class Bullet extends CircleCollider {
     constructor(x, y, radius, speed, color,angle) {
         const colors = ['red', 'blue', 'green', 'yellow', 'purple'];
         const randomColor = colors[Math.floor(Math.random() * colors.length)];
-        super(x, y, radius, null, randomColor, speed); 
+        super(x, y, radius, null, color, speed); 
         this.angle = angle;
     }
 
@@ -304,36 +326,77 @@ class Bullet extends CircleCollider {
     updatePosition(deltaTime) {
         this.x += Math.cos(this.angle) * this.speed * deltaTime ;
         this.y += Math.sin(this.angle) * this.speed * deltaTime ; // Di chuyển theo hướng chuột
-        if(this.x+this.radius>canvas.width || this.x-this.radius<0){
+        if(this.x>canvas.width || this.x<0){
              this.angle = Math.PI - this.angle;
         }
+        console.log(this.y);
+        
+        return { y: this.y }
+        
     }
-
+///////////////////////////////////// BULLET ////////////////////////////////////
 
     draw() {
         context.beginPath();
-        context.arc(this.x, this.y+this.radius, this.radius, 0, 2 * Math.PI);
-        
+        context.arc(this.x, this.y+this.radius, this.radius, 0, 2 * Math.PI);   
         context.fillStyle = this.color;
         context.fill();
         context.lineWidth = 2;
         context.strokeStyle = 'black';
         context.stroke();
     }
+    
 }
 
 
 const bullets = [];
+
+///////////////////////////////////// QUEUE  /////////////////////////////////////
+class BallPrediction {
+    constructor() {
+        this.items = []; // Khởi tạo mảng
+    }
+
+    enqueue(element) {
+        this.items.push(element); // Thêm phần tử vào cuối hàng đợi
+    }
+
+    dequeue() {
+        if (this.isEmpty()) {
+            return "Queue is empty";
+        }
+        return this.items.shift(); // Lấy phần tử đầu tiên và xóa nó khỏi mảng
+    }
+
+    isEmpty() {
+        return this.items.length === 0; // Kiểm tra hàng đợi có rỗng không
+    }
+
+    front() {
+        if (this.isEmpty()) {
+            return "Queue is empty";
+        }
+        return this.items[0]; // Lấy phần tử đầu mà không xóa
+    }
+
+    size() {
+        return this.items.length; // Trả về kích thước hàng đợi
+    }
+
+    clear() {
+        this.items = []; // Xóa tất cả phần tử
+    }
+
+    print() {
+        console.log(this.items.toString()); // In ra hàng đợi
+    }
+}
+
+///////////////////////////////////// QUEUE  /////////////////////////////////////
 ///////////////////////////////////// BULLET ////////////////////////////////////
 
 ///////////////////////////////////// GAME WORLD ////////////////////////////////////
-const rows = 4; // Số hàng bóng
-const cols = 10; // Số cột bóng
-const ballRadius = 20; 
-const grid = []; // Mảng lưu màu sắc các bóng
 
-// Các màu sắc có thể dùng
-const colors = ['red', 'blue', 'green', 'yellow', 'purple'];
 
 for (let i = 0; i < rows; i++) {
   grid[i] = [];
@@ -344,58 +407,115 @@ for (let i = 0; i < rows; i++) {
 }
 const circles = [];
 
-// Hàm vẽ lưới bóng
-function drawGrid(grid) {
-    for (let i = 0; i < grid.length; i++) {
-        for (let j = 0; j < grid[i].length; j++) {
-            const color = grid[i][j];
-            const offsetX = (i % 2 === 0) ? 0 : ballRadius; // Dịch ngang cho hàng lẻ
-            const x = j * ballRadius * 2 + ballRadius + offsetX;
-            const y = i * ballRadius * 2 + ballRadius; 
-            circle = new CircleCollider(x, y, ballRadius, null, color,0); 
-            circles.push(circle); 
-            collisionManager.addCollider(circle); 
-        }
-    }
-}
-
-// Vẽ toàn bộ bóng từ mảng `circles`
-function drawCircles() {
-    for (const circle of circles) {
-        circle.draw();
-    }
-}
-let imgPlayer = "./img/Player/pikachu_tacke.jpg";
-const shoot = new Shooter(canvas.width / 2 - 50, canvas.height - 80, 100, 80, 350, imgPlayer); 
-drawGrid(grid);
+// //Hàm vẽ lưới bóng
 
 
- function updateRotationToMouse(event) {
+    let imgPlayer = "./img/Player/pika_lazy.png";
+    const shoot = new Shooter(canvas.width / 2 - 50, canvas.height - 60, 100, 80, 350, imgPlayer); 
+    let dream = "./img/Player/dream.png";
+    const lazy = new Shooter(230, canvas.height - 110, 100, 80, 350, dream); 
+
+    function updateRotationToMouse(event) {
              mouseX = event.clientX - canvas.offsetLeft; // Tọa độ x của chuột trên canvas
              mouseY = event.clientY - canvas.offsetTop; // Tọa độ y của chuột trên canvas
            
- }
-
- let currentBallColor = "";
- function randomizeBallColor() {
-    currentBallColor = colors[Math.floor(Math.random() * colors.length)]; // Chọn màu ngẫu nhiên
-    // Vẽ quả bóng với màu đã chọn
-    context.beginPath();
-    context.arc(300, canvas.height-100, 20, 0, Math.PI * 2); // Vẽ quả bóng nhỏ tại vị trí
-    context.fillStyle = currentBallColor;
-    context.fill();
-    context.closePath();
-}
-randomizeBallColor();
-
-function shootBullet() {
-    const angle = shoot.calculateAngleToMouse(); // Tính toán góc bắn
-    const bullet = new Bullet(canvas.width / 2, canvas.height - 100, 20, 500, '', angle);
-   // console.log(bullet.x);
+    }
     
-    bullets.push(bullet);
+    function shootBullet(color) {
+        const angle = shoot.calculateAngleToMouse(); // Tính toán góc bắn
+        bullet  =  new CircleCollider(canvas.width/2, canvas.height-100,ballRadius,null,color,1000,angle);
+        collisionManager.addCollider(bullet);
+        bullets.push(bullet);
+    }
+    
+    function getRandomColor() {
+        const randomIndex = Math.floor(Math.random() * colors.length);
+        return colors[randomIndex];
+    }
 
-}
+    const queue = new BallPrediction();
+    
+    let firstBall = getRandomColor();
+    let secondBall = getRandomColor();
+    let lastBall   = getRandomColor();
+
+    queue.enqueue(firstBall);
+    queue.enqueue(secondBall);
+    queue.enqueue(lastBall);
+    
+    //queue.print();
+    
+    predictBullet = new Bullet(280,610,10,0,firstBall,0);
+
+                    /////////// LOAD MAP //////////////
+    async function loadMap(filePath) {
+        try {
+            // Đọc file level1.txt
+            const response = await fetch(filePath);
+            const text = await response.text();
+
+            // Chuyển đổi nội dung file thành mảng 2D
+            const rows = text.trim().split('\n');
+             const map = rows.map(row => row.split(' ').map(Number));
+             //console.log(map);
+             
+            return map;
+        } catch (error) {
+            console.error('Lỗi khi tải map:', error);
+        }
+    }
+
+    // function drawMap(matrix) {
+    //     const startX = 5; // Tọa độ bắt đầu vẽ
+    //     const startY = 2;
+        
+    //     for (let row = 0; row < matrix.length; row++) {
+    //         for (let col = 0; col < matrix[row].length; col++) {
+    //         const poisition = matrix[row][col]; // Lấy giá trị từ ma trận
+    //         const offsetX = (col % 2 === 0) ? 0 : ballRadius; // Dịch ngang cho hàng lẻ
+    //         const x = col * ballRadius * 2 + ballRadius;
+    //         const y = row * ballRadius * 2 + ballRadius; 
+    //         console.log(`Drawing at (${x}, ${y}) with group: ${poisition}`);
+    //         circle = new CircleCollider(x, y, ballRadius, null, getColor(poisition),0);
+    //         console.log(getColor(poisition));
+    //         circles.push(circle); 
+    //         //collisionManager.addCollider(circle); 
+    //         }
+    //     }
+    // }
+        function drawGrid(grid) {
+        for (let i = 0; i < grid.length; i++) {
+            for (let j = 0; j < grid[i].length; j++) {
+                const poisition = grid[i][j];
+                const offsetX = (i % 2 === 0) ? 0 : ballRadius; // Dịch ngang cho hàng lẻ
+                const x = j * ballRadius * 2 + ballRadius + offsetX;
+                const y = i * ballRadius * 2 + ballRadius-20; 
+                circle = new CircleCollider(x, y, ballRadius, null, getColor(poisition),0);
+                console.log(`Poisition (${x}, ${y}): ${poisition}`);
+                circles.push(circle); 
+                collisionManager.addCollider(circle); 
+            }
+        }
+    }
+
+    function getColor(group) {
+        if (group >= 1 && group <= colors.length) {
+            return colors[group - 1]; 
+        }
+        return 'gray'; 
+    }
+    function drawCircles() {
+        for (const circle of circles) {
+            circle.draw();
+        }
+    }
+
+
+    window.onload = () => {
+        loadMap(level1).then(map => {
+            drawGrid(map);  // Gọi hàm vẽ sau khi tải xong
+        });
+    };
 
  ///////////////////////////////////// GAME WORLD ////////////////////////////////////
 
@@ -424,11 +544,20 @@ function gameLoop(timeStamp) {
 
     context.clearRect(0, 0, canvas.width, canvas.height);
     drawCircles();
+    //drawMap(loadMap(level1));
+   
     shoot.drawPrediction(mouseX,mouseY);
     for (const bullet of bullets) {
         bullet.updatePosition(deltaTime); // Cập nhật vị trí viên đạn
-        bullet.draw(); // Vẽ viên đạn
+        bullet.draw(); 
+        if (bullet.y < -bullet.radius) {
+            bullets.splice(bullet, 1);
+            collisionManager.addCollider(bullet);
+            collisionManager.removeCollider(bullet);
+        }
     }
+    lazy.draw();
+    predictBullet.draw();
     shoot.draw();
     collisionManager.checkCollisions();
     requestAnimationFrame(gameLoop);
