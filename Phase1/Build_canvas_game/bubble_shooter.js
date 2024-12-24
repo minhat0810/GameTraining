@@ -16,8 +16,15 @@ let currentBall      = null;
 let nextBall         = null;
 const colors = ['red', 'blue', 'green', 'yellow', 'purple'];
 let bulletFist = true;
+let shooting;
+let check;
+let poisition;
+let a = 1;
+let b = 0;
+
 /// LEVEL/MAP ////
 let level1 = './map/level1.txt';
+
 
 
 ///
@@ -63,30 +70,37 @@ class InputController {
         window.addEventListener("mousemove",(e)=>{
             updateRotationToMouse(e);
         })
+        
         window.addEventListener("click",(e)=>{
            
            if(isShoot){
-            const shooting = queue.dequeue(); // Lấy và xóa quả bóng đầu tiên
-
+            shooting = queue.dequeue(); // Lấy và xóa quả bóng đầu tiên      
+           // console.log(a);
             const nextBall = getRandomColor();
             queue.enqueue(nextBall);
+           // console.log(shooting);
             
             predictBullet = new Bullet(280,610,10,0,queue.front(),0);
           //  queue.print();
-            console.log(queue.front());
+            //console.log(queue.front());
             shootBullet(shooting);
             isShoot = false;
-
+            //shooting = null;
            }
          
         })
     }
-
+    
     isKeyPressed(key) {
         return this.keys[key] || false;
     }
 }
+
+
+
 const inputController = new InputController();
+
+
 ///////////////////////////////////// INPUT ////////////////////////////////////
 
 ///////////////////////////////////// CHECK COLLISION ////////////////////////////////////
@@ -133,12 +147,20 @@ class Collider {
     }
 
     onCollision(other) {
+      //  this.isColliding = true;
         bullet.speed = 0;
         bullet.y = bullet.y+1;
+      //  this.isColliding = false;
         const row = Math.floor((bullet.y - ballRadius) / (ballRadius * 2));
         const col = Math.floor((bullet.x - ballRadius) / (ballRadius * 2));
+
         // console.log(row);
         // console.log(col);
+       // console.log(bullet.color);
+        console.log(circle.color);
+        
+        
+        
         isShoot = true;
     }
 }
@@ -426,6 +448,9 @@ const circles = [];
         bullet  =  new CircleCollider(canvas.width/2, canvas.height-100,ballRadius,null,color,1000,angle);
         collisionManager.addCollider(bullet);
         bullets.push(bullet);
+        // console.log(color);
+        
+        
     }
     
     function getRandomColor() {
@@ -436,12 +461,13 @@ const circles = [];
     const queue = new BallPrediction();
     
     let firstBall = getRandomColor();
-    let secondBall = getRandomColor();
-    let lastBall   = getRandomColor();
+    // let secondBall = getRandomColor();
+    // let lastBall   = getRandomColor();
 
+    
     queue.enqueue(firstBall);
-    queue.enqueue(secondBall);
-    queue.enqueue(lastBall);
+    // queue.enqueue(secondBall);
+    // queue.enqueue(lastBall);
     
     //queue.print();
     
@@ -450,7 +476,6 @@ const circles = [];
                     /////////// LOAD MAP //////////////
     async function loadMap(filePath) {
         try {
-            // Đọc file level1.txt
             const response = await fetch(filePath);
             const text = await response.text();
 
@@ -464,35 +489,22 @@ const circles = [];
             console.error('Lỗi khi tải map:', error);
         }
     }
+    
+    
 
-    // function drawMap(matrix) {
-    //     const startX = 5; // Tọa độ bắt đầu vẽ
-    //     const startY = 2;
-        
-    //     for (let row = 0; row < matrix.length; row++) {
-    //         for (let col = 0; col < matrix[row].length; col++) {
-    //         const poisition = matrix[row][col]; // Lấy giá trị từ ma trận
-    //         const offsetX = (col % 2 === 0) ? 0 : ballRadius; // Dịch ngang cho hàng lẻ
-    //         const x = col * ballRadius * 2 + ballRadius;
-    //         const y = row * ballRadius * 2 + ballRadius; 
-    //         console.log(`Drawing at (${x}, ${y}) with group: ${poisition}`);
-    //         circle = new CircleCollider(x, y, ballRadius, null, getColor(poisition),0);
-    //         console.log(getColor(poisition));
-    //         circles.push(circle); 
-    //         //collisionManager.addCollider(circle); 
-    //         }
-    //     }
-    // }
-        function drawGrid(grid) {
+    function drawMap(grid) {
         for (let i = 0; i < grid.length; i++) {
             for (let j = 0; j < grid[i].length; j++) {
-                const poisition = grid[i][j];
+                poisition = grid[i][j]; 
                 const offsetX = (i % 2 === 0) ? 0 : ballRadius; // Dịch ngang cho hàng lẻ
                 const x = j * ballRadius * 2 + ballRadius + offsetX;
                 const y = i * ballRadius * 2 + ballRadius-20; 
                 circle = new CircleCollider(x, y, ballRadius, null, getColor(poisition),0);
-                console.log(`Poisition (${x}, ${y}): ${poisition}`);
+                //console.log(`Poisition (${x}, ${y}): ${poisition}`);
+                //console.log(circle.color);
+                
                 circles.push(circle); 
+                
                 collisionManager.addCollider(circle); 
             }
         }
@@ -509,13 +521,14 @@ const circles = [];
             circle.draw();
         }
     }
-
-
+    
     window.onload = () => {
         loadMap(level1).then(map => {
-            drawGrid(map);  // Gọi hàm vẽ sau khi tải xong
+            drawMap(map);  // Gọi hàm vẽ sau khi tải xong
         });
     };
+    
+    
 
  ///////////////////////////////////// GAME WORLD ////////////////////////////////////
 

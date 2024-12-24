@@ -1,67 +1,34 @@
-class BallPrediction {
-    constructor() {
-        this.items = []; // Khởi tạo mảng
-    }
+let a = 1;
+let b = 0;  // Biến ngoài để lưu giá trị của a
+let c = 0;
+// Hàm trả về Promise để đồng bộ hóa sự kiện click
+function updateValueOnClick() {
+    return new Promise((resolve) => {
+        window.addEventListener("click", () => {
+            a += 10;  // Cập nhật giá trị a
+            b = a;    // Cập nhật giá trị b
+            console.log("Giá trị a sau click:", a);
+            //console.log("Giá trị b sau khi cập nhật:", b);
+            resolve();  // Kết thúc Promise sau khi cập nhật xong
+        });
+    });
+}
 
-    enqueue(element) {
-        this.items.push(element); // Thêm phần tử vào cuối hàng đợi
-    }
-
-    dequeue() {
-        if (this.isEmpty()) {
-            return "Queue is empty"; // Trả về thông báo nếu hàng đợi rỗng
-        }
-        return this.items.shift(); // Lấy phần tử đầu tiên và xóa nó khỏi mảng
-    }
-
-    isEmpty() {
-        return this.items.length === 0; // Kiểm tra hàng đợi có rỗng không
-    }
-
-    front() {
-        if (this.isEmpty()) {
-            return "Queue is empty";
-        }
-        return this.items[0]; // Lấy phần tử đầu mà không xóa
-    }
-
-    size() {
-        return this.items.length; // Trả về kích thước hàng đợi
-    }
-
-    clear() {
-        this.items = []; // Xóa tất cả phần tử
-    }
-
-    print() {
-        console.log(this.items.toString()); // In ra hàng đợi
+// Hàm async để xử lý sự kiện click đồng bộ
+async function handleClick() {
+    while (true) { 
+    console.log("Giá trị b trước khi click:", b);
+    await updateValueOnClick();  // Chờ sự kiện click xảy ra và Promise được resolve
+    getValue(b);
     }
 }
 
-const queue = new BallPrediction();
-const colors = ['red', 'blue', 'green', 'yellow', 'purple'];
-
-function getRandomColor() {
-    const randomIndex = Math.floor(Math.random() * colors.length);
-    return colors[randomIndex];
+// Gọi hàm handleClick để xử lý
+handleClick();
+function getValue(b){
+   c = b;
 }
 
-// Tạo 3 quả bóng đầu tiên
-queue.enqueue(getRandomColor());
-queue.enqueue(getRandomColor());
-queue.enqueue(getRandomColor());
+console.log();
 
-queue.print(getRandomColor());
 
-window.addEventListener("click", () => {
-    // Đổi màu nền thành quả bóng đầu tiên
-    const firstBall = queue.dequeue(); // Lấy và xóa quả bóng đầu tiên
-    document.body.style.backgroundColor = firstBall;
-
-    // Thêm quả bóng mới vào hàng đợi
-    const nextBall = getRandomColor();
-    queue.enqueue(nextBall);
-
-    // In trạng thái hàng đợi
-    queue.print();
-});
