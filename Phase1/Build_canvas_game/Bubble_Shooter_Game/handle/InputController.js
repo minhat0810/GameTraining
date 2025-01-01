@@ -1,12 +1,13 @@
 import { CircleCollider } from "../model/CircleCollider.js";
+import { gameState } from "../main/index.js";
 
 export class InputController {
-  constructor(canvas, updateRotationToMouse,isShoot,queue,shooting,getRandomColor,predictBullet,shootBullet) {
+  constructor(canvas, updateRotationToMouse,queue,shooting,getRandomColor,predictBullet,shootBullet) {
     this.canvas = canvas;
     this.updateRotationToMouse = updateRotationToMouse;
     this.mouseX = 0;
     this.mouseY = 0;
-    this.isShoot = isShoot;
+   // this.isShoot = isShoot;
     this.queue = queue;
     this.shooting = shooting;
     this.getRandomColor = getRandomColor;
@@ -18,33 +19,19 @@ export class InputController {
     window.addEventListener("keydown", (e) => (this.keys[e.key] = true));
     window.addEventListener("keyup", (e) => (this.keys[e.key] = false));
 
-    // Make sure 'this.canvas' is available before using it
-    // window.addEventListener("mousemove", (e) => {
-    //   // if (this.canvas) {
-    //   updateRotationToMouse(e);
-    //   //}
-    // });
-
      window.addEventListener("mousemove", (e) => this.updateRotationToMouse(e));
 
     window.addEventListener("click", (e) => {
-      if (this.isShoot) {
-        shooting = queue.dequeue(); // Lấy và xóa quả bóng đầu tiên
+    if (gameState.getShoot()) { // Kiểm tra trạng thái từ gameState
+        this.shooting = this.queue.dequeue();
         const nextBall = this.getRandomColor();
-        queue.enqueue(nextBall);
-        //console.log(shooting);
-        
-        predictBullet = new CircleCollider(280, 610, 10, 0, queue.front(), 0);
+        this.queue.enqueue(nextBall);
 
-         shootBullet(shooting);
-         //console.log(bullet);
-         
-      //   this.isShoot = false;
-         //console.log(isShoot);
-         
-        // collis = false;
+        const bullet = this.shootBullet(this.shooting);
+        gameState.setShoot(false); // Đặt lại trạng thái
       }
     });
+      
   }
 
   isKeyPressed(key) {

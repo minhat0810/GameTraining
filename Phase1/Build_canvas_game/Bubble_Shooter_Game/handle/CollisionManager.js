@@ -1,3 +1,4 @@
+import { gameState } from "../main/index.js";
 export class CollisionManager {
   constructor() {
     this.colliders = [];
@@ -5,7 +6,6 @@ export class CollisionManager {
 
   addCollider(collider) {
     this.colliders.push(collider);
-  //  console.log(this.colliders);
   }
 
   removeCollider(collider) {

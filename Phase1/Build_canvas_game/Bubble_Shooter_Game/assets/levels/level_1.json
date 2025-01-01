@@ -1,0 +1,39 @@
+[
+  [
+    { "type": "bubble", "colorIndex": 1 },
+    { "type": "bubble", "colorIndex": 1 },
+    { "type": "bubble", "colorIndex": 1 },
+    { "type": "bubble", "colorIndex": 1 },
+    { "type": "bubble", "colorIndex": 1 },
+    { "type": "bubble", "colorIndex": 1 },
+    { "type": "bubble", "colorIndex": 1 },
+    { "type": "bubble", "colorIndex": 1 },
+    { "type": "bubble", "colorIndex": 1 },
+    { "type": "bubble", "colorIndex": 1 }
+   
+  ],
+  [
+    { "type": "bubble", "colorIndex": 2 },
+    { "type": "bubble", "colorIndex": 2 },
+    { "type": "bubble", "colorIndex": 2 },
+    { "type": "bubble", "colorIndex": 2 },
+    { "type": "bubble", "colorIndex": 2 },
+    { "type": "bubble", "colorIndex": 2 },
+    { "type": "bubble", "colorIndex": 2 },
+    { "type": "bubble", "colorIndex": 2 },
+    { "type": "bubble", "colorIndex": 2 },
+    { "type": "bubble", "colorIndex": 2 }
+  ],
+  [
+    { "type": "bubble", "colorIndex": 3 },
+    { "type": "bubble", "colorIndex": 3 },
+    { "type": "bubble", "colorIndex": 3 },
+    { "type": "bubble", "colorIndex": 3 },
+    { "type": "bubble", "colorIndex": 2 },
+    { "type": "bubble", "colorIndex": 2 },
+    { "type": "bubble", "colorIndex": 3 },
+    { "type": "bubble", "colorIndex": 3 },
+    { "type": "bubble", "colorIndex": 3 },
+    { "type": "bubble", "colorIndex": 3 }
+  ]
+]

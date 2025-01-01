@@ -4,6 +4,7 @@
   import { BallPrediction } from "../model/BallPrediction.js";
   import { CircleCollider } from "../model/CircleCollider.js";
   import { CollisionManager } from "../handle/CollisionManager.js"
+  import { Map } from "../model/Map.js";
 
   const canvas = document.getElementById("gameCanvas");
   const context = canvas.getContext("2d");
@@ -20,16 +21,41 @@
   let predictBullet;
   let bullet;
   let bullets = [];
+  let mapLoaded = false;
+  let bubbles = [];
+
+    export const gameState = {
+      isShoot: true, 
+
+      setShoot(value) {
+        this.isShoot = value;
+      },
+
+      getShoot() {
+        return this.isShoot;
+      },
+    };
+
+    export const bubble = {
+      
+      addBubbles(obj){
+        bubbles.push(obj);
+      }
+    }
+
 
   const queue = new BallPrediction();
-  const inputController = new InputController(canvas, updateRotationToMouse,isShoot,queue,shooting,getRandomColor,predictBullet,shootBullet);
+  const inputController = new InputController(canvas, updateRotationToMouse,queue,shooting,getRandomColor,predictBullet,shootBullet);
   const shoot = new Shooter(canvas.width / 2 - 50,canvas.height - 60,100,80,350,imgPlayer);
   const drawShoot = new Draw(context,shoot);
   const collisionManager = new CollisionManager();
+  const map = new Map(context,ballRadius,collisionManager);
  
 
   let firstBall = getRandomColor();
   queue.enqueue(firstBall);
+
+
   
 
 
@@ -38,16 +64,25 @@
     mouseY = event.clientY - canvas.offsetTop;
   }
 
-  const getBullets = () => bullets;
+  //const getBullets = () => bullets;
 
   function shootBullet(color) {
+
+    //if (!isShoot) return;
+    
     const angle = shoot.calculateAngleToMouse(mouseX,mouseY); // Tính toán góc bắn
    // console.log(angle);
     
     bullet = new CircleCollider(canvas.width / 2,canvas.height - 80,ballRadius,null,color,800,angle,isShoot);
     collisionManager.addCollider(bullet);
     bullets.push(bullet);
-       
+
+    // isShoot = false;
+    //console.log(isShoot);
+    
+    
+
+    return bullet;
   } 
 
 
@@ -68,31 +103,38 @@
     const deltaTime = (timeStamp - lastTime) / 1000;
     lastTime = timeStamp;
 
-  //   if (gameManager.state === "gameOver") {
-  //     context.clearRect(0, 0, canvas.width, canvas.height);
-  //     context.fillStyle = "red";
-  //     context.font = "30px Arial";
-  //     context.fillText("Game Over!", canvas.width / 2 - 80, canvas.height / 2); // Hiển thị thông báo "Game Over"
-  //     return; // Dừng di chuyển
-  //   }
 
     context.clearRect(0, 0, canvas.width, canvas.height);
     
-
+     if (!mapLoaded) {
+       map.loadMap();
+       mapLoaded = true; 
+     }
     drawShoot.drawShooter(shoot);
-    drawShoot.drawPrediction(shoot,mouseX,mouseY,canvas,ballRadius);
+    if(gameState.getShoot(true)){
+       drawShoot.drawPrediction(shoot, mouseX, mouseY, canvas, ballRadius);
+    }
     
     for (const bullet of bullets) {
-     // console.log(bullet);
-      
       bullet.updatePosition(deltaTime,canvas,isShoot); // Cập nhật vị trí viên đạn
       bullet.draw(context);
-      if (bullet.y < -bullet.radius) {
-        bullets.splice(bullet, 1);
-        collisionManager.addCollider(bullet);
-        collisionManager.removeCollider(bullet);
-      }
+      // if (bullet.y < -bullet.radius) {
+      //   bullets.splice(bullet, 1);
+      //   collisionManager.addCollider(bullet);
+      //   collisionManager.removeCollider(bullet);
+      // }
     }
+     for (const bubbleObj of bubbles) {
+      //  map.drawBubble(
+      //    bubbleObj.x,
+      //    bubbleObj.y,
+      //    bubbleObj.radius,
+      //    bubbleObj.color
+      //  );  
+        bubbleObj.draw(context); 
+     }
+    
+    
     collisionManager.checkCollisions();
     requestAnimationFrame(gameLoop);
   }

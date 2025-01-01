@@ -78,7 +78,7 @@ class InputController {
 
         shootBullet(shooting);
         isShoot = false;
-        //console.log(collis);
+       // console.log(collis);
 
         collis = false;
       }
@@ -142,7 +142,7 @@ class Collider {
 
     bullet.speed = 0;
     bullet.y += 3;
-  //  console.log(this.y)
+    console.log(other)
 
     // for (const circle of circles) {
     //   if (circle.checkCollision(bullet)) {

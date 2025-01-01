@@ -1,17 +1,8 @@
-// import { Collider } from '/handle/Collider'
+import { gameState } from "../main/index.js";
 import { Collider } from "../handle/Collider.js";
 
 export class CircleCollider extends Collider {
-  constructor(
-    x,
-    y,
-    radius,
-    imageSrc = null,
-    color = "red",
-    speed,
-    angle,
-    isShoot
-  ) {
+  constructor(x,y,radius,imageSrc = null,color = "red",speed,angle) {
     super(x, y);
     this.radius = radius;
     this.speed = speed;
@@ -19,18 +10,13 @@ export class CircleCollider extends Collider {
     this.image = null;
     this.color = color;
     this.angle = angle;
-    this.isShoot = isShoot;
+   // this.isShoot = isShoot;
 
     if (imageSrc) {
       this.image = new Image();
       this.image.src = imageSrc;
     }
   }
-  // onCollision(other) {
-  //   // Khi có va chạm, đặt trạng thái isShoot thành true
-  //   this.isShoot = true;
-  //   console.log("Collision detected. Can shoot again.");
-  // }
   checkCollision(other) {
     if (other instanceof CircleCollider) {
       const dx = this.x - other.x;
@@ -72,8 +58,9 @@ export class CircleCollider extends Collider {
     if (this.y < 0) {
       this.speed = 0;
       this.y = this.y + 2;
-      isShoot = true;
-      //console.log(isShoot);
+      // this.isShoot = false;
+      gameState.setShoot(true);
+      // console.log(this.isShoot);
     }
 
     // if(this.y + this.radius >canvas.height || this.y - this.radius <0){
