@@ -512,8 +512,7 @@ function drawMap(grid) {
       );
 
       circles.push(circle);
-
-      collisionManager.addCollider(circle);
+      collisionManager.addCollider(circle); 
     }
   }
 }

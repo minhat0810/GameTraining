@@ -35,5 +35,17 @@
     { "type": "bubble", "colorIndex": 3 },
     { "type": "bubble", "colorIndex": 3 },
     { "type": "bubble", "colorIndex": 3 }
+  ],
+  [
+    { "type": "bubble", "colorIndex": 1 },
+    { "type": "bubble", "colorIndex": 1 },
+    { "type": "bubble", "colorIndex": 1 },
+    { "type": "bubble", "colorIndex": 1 },
+    { "type": "none", "colorIndex": 0 },
+    { "type": "none", "colorIndex": 0 },
+    { "type": "bubble", "colorIndex": 1 },
+    { "type": "bubble", "colorIndex": 1 },
+    { "type": "bubble", "colorIndex": 1 },
+    { "type": "bubble", "colorIndex": 1 }
   ]
 ]

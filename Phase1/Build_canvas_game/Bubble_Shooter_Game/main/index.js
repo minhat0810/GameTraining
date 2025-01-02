@@ -12,7 +12,7 @@
   const circles = [];
   let mouseX = 0;
   let mouseY = 0;
-  let level1 = "../assets/levels/level1.txt";
+  let level1 = "../assets/levels/level_1.json";
   let imgPlayer = "../assets/img/Player/pika_lazy.png";
   const ballRadius = 20;
   let isShoot = true;
@@ -22,7 +22,9 @@
   let bullet;
   let bullets = [];
   let mapLoaded = false;
+  let firstShoot = true;
   let bubbles = [];
+  let dream = "../assets/img/Player/dream.png";
 
     export const gameState = {
       isShoot: true, 
@@ -37,25 +39,51 @@
     };
 
     export const bubble = {
-      
       addBubbles(obj){
         bubbles.push(obj);
+      },
+      removeBubble(bubble) {
+        // const index = this.bubbles.indexOf(bubble);
+        // if (index > -1) {
+        //   this.bubbles.splice(index, 1);
+        // }
       }
     }
 
 
+    
+  let firstBall = getRandomColor();
+
+
+    export const nextBullet = {
+      predictBullet: firstBall,
+      setBullet(value){
+        this.predictBullet = value;
+      },
+       getBullet() {
+        return this.predictBullet;
+      },
+    }
+
+
   const queue = new BallPrediction();
-  const inputController = new InputController(canvas, updateRotationToMouse,queue,shooting,getRandomColor,predictBullet,shootBullet);
+  const inputController = new InputController(canvas, updateRotationToMouse,queue,shooting,getRandomColor,shootBullet);
+  const collisionManager = new CollisionManager();
   const shoot = new Shooter(canvas.width / 2 - 50,canvas.height - 60,100,80,350,imgPlayer);
   const drawShoot = new Draw(context,shoot);
-  const collisionManager = new CollisionManager();
-  const map = new Map(context,ballRadius,collisionManager);
+  
+ // const map = new Map(context,ballRadius,collisionManager);
+  const map = new Map(4, 10);
+  const drawMap = new Draw(context,map,ballRadius,collisionManager);
+  const lazy = new Shooter(230, canvas.height - 110, 100, 80, 350, dream);
+  let first = new CircleCollider(280, 610, 10, 0, firstBall, 0);
  
-
-  let firstBall = getRandomColor();
-  queue.enqueue(firstBall);
+    queue.enqueue(firstBall);
 
 
+
+  // const predictBullet = nextBullet.getBullet();
+  // console.log(predictBullet);
   
 
 
@@ -106,11 +134,16 @@
 
     context.clearRect(0, 0, canvas.width, canvas.height);
     
+    drawMap.drawGrid(40,level1,ballRadius);
+    if(firstShoot){
+      first.draw(context);
+    }
      if (!mapLoaded) {
-       map.loadMap();
+      // map.loadMap();
        mapLoaded = true; 
      }
     drawShoot.drawShooter(shoot);
+    drawShoot.drawShooter(lazy);
     if(gameState.getShoot(true)){
        drawShoot.drawPrediction(shoot, mouseX, mouseY, canvas, ballRadius);
     }
@@ -118,6 +151,7 @@
     for (const bullet of bullets) {
       bullet.updatePosition(deltaTime,canvas,isShoot); // Cập nhật vị trí viên đạn
       bullet.draw(context);
+      
       // if (bullet.y < -bullet.radius) {
       //   bullets.splice(bullet, 1);
       //   collisionManager.addCollider(bullet);
@@ -125,15 +159,21 @@
       // }
     }
      for (const bubbleObj of bubbles) {
-      //  map.drawBubble(
-      //    bubbleObj.x,
-      //    bubbleObj.y,
-      //    bubbleObj.radius,
-      //    bubbleObj.color
-      //  );  
         bubbleObj.draw(context); 
+        //console.log(bubbleObj);
      }
+   // predictBullet.draw(context);
+    predictBullet = nextBullet.getBullet();
     
+    if (predictBullet instanceof CircleCollider) {
+      predictBullet.draw(context);
+      firstShoot = false;
+    }
+    // if (predictBullet) {
+    //   // Thực hiện các hành động với viên đạn dự đoán
+    //   predictBullet.updatePosition(deltaTime, canvas, isShoot);
+    //   predictBullet.draw(context);
+    // }
     
     collisionManager.checkCollisions();
     requestAnimationFrame(gameLoop);
