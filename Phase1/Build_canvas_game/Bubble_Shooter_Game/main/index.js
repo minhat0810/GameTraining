@@ -27,7 +27,7 @@
   let dream = "../assets/img/Player/dream.png";
 
     export const gameState = {
-      isShoot: true, 
+      isShoot: true,
 
       setShoot(value) {
         this.isShoot = value;
@@ -35,6 +35,9 @@
 
       getShoot() {
         return this.isShoot;
+      },
+      getGrid() {
+        return bubbles; // Trả về lưới bóng
       },
     };
 
@@ -72,8 +75,8 @@
   const shoot = new Shooter(canvas.width / 2 - 50,canvas.height - 60,100,80,350,imgPlayer);
   const drawShoot = new Draw(context,shoot);
   
- // const map = new Map(context,ballRadius,collisionManager);
-  const map = new Map(4, 10);
+  const map = new Map(context,ballRadius,collisionManager);
+ // const map = new Map(4, 10);
   const drawMap = new Draw(context,map,ballRadius,collisionManager);
   const lazy = new Shooter(230, canvas.height - 110, 100, 80, 350, dream);
   let first = new CircleCollider(280, 610, 10, 0, firstBall, 0);
@@ -134,12 +137,12 @@
 
     context.clearRect(0, 0, canvas.width, canvas.height);
     
-    drawMap.drawGrid(40,level1,ballRadius);
+   // drawMap.drawGrid(40,level1,ballRadius);
     if(firstShoot){
       first.draw(context);
     }
      if (!mapLoaded) {
-      // map.loadMap();
+       map.loadMap();
        mapLoaded = true; 
      }
     drawShoot.drawShooter(shoot);
@@ -160,7 +163,8 @@
     }
      for (const bubbleObj of bubbles) {
         bubbleObj.draw(context); 
-        //console.log(bubbleObj);
+    //    console.log(bubbleObj);
+        
      }
    // predictBullet.draw(context);
     predictBullet = nextBullet.getBullet();

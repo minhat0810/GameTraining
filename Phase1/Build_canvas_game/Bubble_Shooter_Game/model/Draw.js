@@ -72,39 +72,38 @@ export class Draw {
       context.stroke();
     }
   }
-  async drawGrid(cellSize, gridPath, ballRadius) {
-    // Đọc dữ liệu JSON từ file
-    await this.map.loadFromJSON(gridPath);
+  // async drawGrid(cellSize, gridPath, ballRadius) {
+  //   await this.map.loadFromJSON(gridPath);
 
-    // Duyệt qua lưới và vẽ các quả bóng lên canvas
-    // for (let y = 0; y < this.map.grid.length; y++) {
-    //   for (let x = 0; x < this.map.grid[y].length; x++) {
-    //     const ballColorIndex = this.map.getBall(x, y);
-    //     if (ballColorIndex !== null) {
-    //       // Chọn màu cho quả bóng dựa trên colorIndex
-    //       const color = this.getColorByIndex(ballColorIndex);
-    //     }
-    //   }
-    // }
-    if (!this.map.grid || this.map.grid.length === 0) {
-      throw new Error("Grid không được tải đúng.");
-    }
+  //   // Duyệt qua lưới và vẽ các quả bóng lên canvas
+  //   // for (let y = 0; y < this.map.grid.length; y++) {
+  //   //   for (let x = 0; x < this.map.grid[y].length; x++) {
+  //   //     const ballColorIndex = this.map.getBall(x, y);
+  //   //     if (ballColorIndex !== null) {
+  //   //       // Chọn màu cho quả bóng dựa trên colorIndex
+  //   //       const color = this.getColorByIndex(ballColorIndex);
+  //   //     }
+  //   //   }
+  //   // }
+  //   if (!this.map.grid || this.map.grid.length === 0) {
+  //     throw new Error("Grid không được tải đúng.");
+  //   }
 
-    for (let row = 0; row < this.map.grid.length; row++) {
-      for (let col = 0; col < this.map.grid[row].length; col++) {
-        const obj = this.map.grid[row][col];
-        const offsetX = row % 2 === 0 ? 0 : ballRadius; // Dịch ngang cho hàng lẻ
-        const x = col * ballRadius * 2 + ballRadius + offsetX;
-        const y = row * ballRadius * 2 + ballRadius - ballRadius;
-        const color = this.colors[obj.colorIndex - 1]; // Lấy màu từ mảng colors
+  //   for (let row = 0; row < this.map.grid.length; row++) {
+  //     for (let col = 0; col < this.map.grid[row].length; col++) {
+  //       const obj = this.map.grid[row][col];
+  //       const offsetX = row % 2 === 0 ? 0 : ballRadius; // Dịch ngang cho hàng lẻ
+  //       const x = col * ballRadius * 2 + ballRadius + offsetX;
+  //       const y = row * ballRadius * 2 + ballRadius - ballRadius;
+  //       const color = this.colors[obj.colorIndex - 1]; // Lấy màu từ mảng colors
 
-        // Vẽ đối tượng tùy theo type
-        if (obj.type === "bubble") {
-          let circle = new CircleCollider(x, y, ballRadius, null, color, 0, 0);
-          bubble.addBubbles(circle);
-          this.collisionManager.addCollider(circle);
-        }
-      }
-    }
-  }
+  //       // Vẽ đối tượng tùy theo type
+  //       if (obj.type === "bubble") {
+  //         let circle = new CircleCollider(x, y, ballRadius, null, color, 0, 0);
+  //      //   bubble.addBubbles(circle);
+  //        // this.collisionManager.addCollider(circle);
+  //       }
+  //     }
+  //   }
+  // }
 }

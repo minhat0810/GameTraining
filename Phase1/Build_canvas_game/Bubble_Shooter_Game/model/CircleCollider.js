@@ -34,13 +34,13 @@ export class CircleCollider extends Collider {
       context.drawImage(
         this.image,
         this.x - this.radius,
-        this.y - this.radius,
+        this.y + this.radius,
         this.radius * 2,
         this.radius * 2
       );
     } else {
       context.beginPath();
-      context.arc(this.x, this.y + this.radius, this.radius, 0, 2 * Math.PI);
+      context.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
       context.fillStyle = this.color; // Dùng màu sắc được truyền vào
       context.fill();
       context.lineWidth = 2; // Độ dày của viền
