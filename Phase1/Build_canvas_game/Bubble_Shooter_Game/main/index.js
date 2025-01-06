@@ -2,7 +2,7 @@
   import { Draw } from "../model/Draw.js";
   import { InputController } from "../handle/InputController.js";
   import { BallPrediction } from "../model/BallPrediction.js";
-  import { CircleCollider } from "../model/CircleCollider.js";
+  import { Ball } from "../model/Ball.js";
   import { CollisionManager } from "../handle/CollisionManager.js"
   import { Map } from "../model/Map.js";
 
@@ -24,7 +24,9 @@
   let mapLoaded = false;
   let firstShoot = true;
   let bubbles = [];
+  let mapData = [];
   let dream = "../assets/img/Player/dream.png";
+  
 
     export const gameState = {
       isShoot: true,
@@ -39,6 +41,9 @@
       getGrid() {
         return bubbles; // Trả về lưới bóng
       },
+      clear(){
+        bubbles = [];
+      }
     };
 
     export const bubble = {
@@ -50,8 +55,23 @@
         // if (index > -1) {
         //   this.bubbles.splice(index, 1);
         // }
+      },
+      getListBubble(){
+        return bubbles;
       }
     }
+
+    export const mapDatas = {
+      setMapData(val){
+          mapData = val;
+      },
+      getMapData(){
+        return mapData;
+      }
+    }
+ 
+
+    
 
 
     
@@ -75,11 +95,11 @@
   const shoot = new Shooter(canvas.width / 2 - 50,canvas.height - 60,100,80,350,imgPlayer);
   const drawShoot = new Draw(context,shoot);
   
-  const map = new Map(context,ballRadius,collisionManager);
+  const map = new Map(context,ballRadius,collisionManager,canvas);
  // const map = new Map(4, 10);
   const drawMap = new Draw(context,map,ballRadius,collisionManager);
   const lazy = new Shooter(230, canvas.height - 110, 100, 80, 350, dream);
-  let first = new CircleCollider(280, 610, 10, 0, firstBall, 0);
+  let first = new Ball(280, 610, 10, 0, firstBall, 0, 0, map.checkMerge.bind(map));
  
     queue.enqueue(firstBall);
 
@@ -98,20 +118,10 @@
   //const getBullets = () => bullets;
 
   function shootBullet(color) {
-
-    //if (!isShoot) return;
-    
     const angle = shoot.calculateAngleToMouse(mouseX,mouseY); // Tính toán góc bắn
-   // console.log(angle);
-    
-    bullet = new CircleCollider(canvas.width / 2,canvas.height - 80,ballRadius,null,color,800,angle,isShoot);
-    collisionManager.addCollider(bullet);
+    bullet = new Ball(canvas.width / 2,canvas.height - 80,ballRadius,null,color,800,angle, map.checkMerge.bind(map));
+    collisionManager.addCollider(bullet.collider);
     bullets.push(bullet);
-
-    // isShoot = false;
-    //console.log(isShoot);
-    
-    
 
     return bullet;
   } 
@@ -136,6 +146,8 @@
 
 
     context.clearRect(0, 0, canvas.width, canvas.height);
+ //   console.log(mapDatas.getMapData());
+    
     
    // drawMap.drawGrid(40,level1,ballRadius);
     if(firstShoot){
@@ -154,7 +166,6 @@
     for (const bullet of bullets) {
       bullet.updatePosition(deltaTime,canvas,isShoot); // Cập nhật vị trí viên đạn
       bullet.draw(context);
-      
       // if (bullet.y < -bullet.radius) {
       //   bullets.splice(bullet, 1);
       //   collisionManager.addCollider(bullet);
@@ -163,22 +174,15 @@
     }
      for (const bubbleObj of bubbles) {
         bubbleObj.draw(context); 
-    //    console.log(bubbleObj);
-        
      }
-   // predictBullet.draw(context);
+
     predictBullet = nextBullet.getBullet();
     
-    if (predictBullet instanceof CircleCollider) {
+    if (predictBullet instanceof Ball) {
+      // console.log(123)
       predictBullet.draw(context);
       firstShoot = false;
     }
-    // if (predictBullet) {
-    //   // Thực hiện các hành động với viên đạn dự đoán
-    //   predictBullet.updatePosition(deltaTime, canvas, isShoot);
-    //   predictBullet.draw(context);
-    // }
-    
     collisionManager.checkCollisions();
     requestAnimationFrame(gameLoop);
   }

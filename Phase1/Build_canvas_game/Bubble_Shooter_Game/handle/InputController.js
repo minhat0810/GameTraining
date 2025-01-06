@@ -1,4 +1,4 @@
-import { CircleCollider } from "../model/CircleCollider.js";
+import { Ball } from "../model/Ball.js";
 import { gameState } from "../main/index.js";
 import { nextBullet } from "../main/index.js";
 
@@ -28,7 +28,7 @@ export class InputController {
         const nextBall = this.getRandomColor();
         this.queue.enqueue(nextBall);
 
-        const predictBullet = new CircleCollider(280, 610, 10, 0, queue.front(), 0);
+        const predictBullet = new Ball(280, 610, 10, 0, queue.front(), 0, 0, () => console.log(123141423));
         nextBullet.setBullet(predictBullet); 
 
         const bullet = this.shootBullet(this.shooting);
