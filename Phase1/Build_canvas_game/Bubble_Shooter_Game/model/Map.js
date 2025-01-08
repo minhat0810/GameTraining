@@ -5,13 +5,15 @@ import { CollisionManager } from "../handle/CollisionManager.js";
 
 
 export class Map {
-  constructor(context, ballRadius, collisionManager,canvas) {
+  constructor(context, ballRadius, collisionManager, canvas) {
     this.context = context;
     this.ballRadius = ballRadius;
     this.collisionManager = collisionManager;
     this.colors = ["red", "blue", "green", "yellow", "purple"];
     this.mapData = [];
     this.canvas = canvas;
+    this.redraw = false;
+      //  console.log(this.mapData);
   }
 
   loadMap() {
@@ -19,8 +21,7 @@ export class Map {
       .then((response) => response.json()) // Chuyển đổi dữ liệu JSON
       .then((data) => {
         this.mapData = data;
-        //   console.log("Map Data: ", mapData);
-        this.drawMap(this.mapData, this.ballRadius); // Vẽ map từ dữ liệu JSON
+          this.drawMap(this.mapData, this.ballRadius); // Vẽ map từ dữ liệu JSON
       })
       .catch((error) => console.error("Error loading map:", error));
   }
@@ -37,64 +38,61 @@ export class Map {
 
         // Vẽ đối tượng tùy theo type
         if (obj.type === "bubble") {
-          let circle = new Ball(x, y,ballRadius,null,color, 0,0, this.checkMerge.bind(this));
+          let circle = new Ball(x,y,ballRadius,null,color,0,0,this.checkMerge.bind(this));
+          circle.row = row;
+          circle.col = col;
           bubble.addBubbles(circle);
-         // circle.setMapData(mapData);
-            mapDatas.setMapData(this.mapData);
-       //   console.log(mapData);
-        //  mapData[4][0] = 'null'
-        // 
+          // console.log(circle.row);
+
+          mapDatas.setMapData(this.mapData);
           this.collisionManager.addCollider(circle.collider);
-     //     console.log(this.mapData);
-          
-        }else if (obj.type === "empty") {
-            continue;
+
+          bubble.remove(1, 1);
+        } else if (obj.type === "empty") {
+          continue;
         }
       }
     }
   }
-
   checkMerge(row, col, ball, mapData, gridRows, gridCols) {
     let bubbles = [];
     let visited = new Set();
 
-    
-    this.mapData.splice(1,1);
-    
-    //gameState.clear();
-
-    //console.log(mapData);
-    
-     
-    this.dfs(row, col, bubbles, visited, ball, gridRows, gridCols);
-
-    
+    bubbles.push(ball);
+    this.dfs(row, col, bubbles, visited, ball, gridRows, gridCols, mapData);
 
     if (bubbles.length >= 3) {
       console.log("has: " + bubbles.length);
+      console.log(this.mapData);
+
     }
-    //return this.mapData[4][0] = 'null';
   }
 
-  dfs(row, col, bubbles, visited, ball, gridRows, gridCols) {
+  dfs(row, col, bubbles, visited, ball, gridRows, gridCols, mapData) {
     const key = `${row},${col}`;
 
-    if (visited.has(key)) return;
-    visited.add(key);
-     
-
-    let currentBubble = this.getBubbleAt(row, col, ball, gridRows, gridCols);
-
-    if (!currentBubble) return;
-   
-    if (currentBubble.color !== ball.color) {
+    if (
+      row < 0 ||
+      row >= gridRows ||
+      col < 0 ||
+      col >= gridCols ||
+      visited.has(key)
+    ) {
       return;
     }
 
-    if (!currentBubble) return;
+    let currentBubble = mapData[row][col];
 
+    let currentBubbleColor = this.colors[mapData[row][col].colorIndex - 1];
+
+    if (currentBubbleColor !== ball.color) {
+      return;
+    }
+
+    visited.add(key);
+
+    this.mapData[row][col].type = "empty";
     bubbles.push(currentBubble);
-
 
     const directions = [
       [-1, 0], // Trên
@@ -104,35 +102,17 @@ export class Map {
     ];
 
     for (const [dx, dy] of directions) {
-      this.dfs(row + dx, col + dy, bubbles, visited, ball);
-    //  console.log(dx,dy);
+      this.dfs(
+        row + dx,
+        col + dy,
+        bubbles,
+        visited,
+        ball,
+        gridRows,
+        gridCols,
+        mapData
+      );
     }
   }
-
-  getBubbleAt(row, col, other, gridRows, gridCols) {
-    if (row < 0 || row >= gridRows || col < 0 || col >= gridCols || gridCols == undefined || gridCols == undefined) {
-      return null;
-    }
-    if (other) {
-      return other;
-    }
-
-    return null;
-  }
-
-  findCluster(startRow, startCol, mapData) {
-    const row = mapData.length;
-    console.log(row);
-  }
-  //   drawBubble(x, y, radius, color) {
-  //     this.context.beginPath();
-  //     this.context.arc(x, y, radius, 0, 2 * Math.PI);
-  //     this.context.fillStyle = color;
-  //     this.context.fill();
-  //     this.context.strokeStyle = "black"; // Màu viền
-  //     this.context.stroke();
-  //     this.context.closePath();
-  //   }
-
 }
 

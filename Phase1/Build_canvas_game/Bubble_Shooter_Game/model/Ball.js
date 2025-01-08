@@ -113,6 +113,10 @@ export class Ball {
       let gridCols = 10;
 
      // 
+      bubble.addBubbles(this);
+
+    //  console.log(this);
+      
 
       const row = Math.floor((y - ballRadius) / (ballRadius * 2));
       const isOdd = row % 2 !== 0;
@@ -131,7 +135,7 @@ export class Ball {
        // mapDatas.getMapData()[4][0] = '';
         //console.log(mapDatas.getMapData());
         
-        this.onCollideCorrectColor?.(row,col,otherCollider,mapDatas.getMapData(),gridRows,gridCols);
+        this.onCollideCorrectColor?.(row,col,this,mapDatas.getMapData(),gridRows,gridCols);
         //console.log(this.y);
       }
       // let bubbleAtPosition = this.getBubbleAt(x, y,ballRadius);

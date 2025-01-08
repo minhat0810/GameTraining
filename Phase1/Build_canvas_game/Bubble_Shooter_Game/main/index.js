@@ -26,6 +26,7 @@
   let bubbles = [];
   let mapData = [];
   let dream = "../assets/img/Player/dream.png";
+  let firstDrawMap = true;
   
 
     export const gameState = {
@@ -43,18 +44,44 @@
       },
       clear(){
         bubbles = [];
+      },
+      setDraw(val){
+        this.firstDrawMap = val;
+      },
+      getDraw(){
+        return this.firstDrawMap;
       }
     };
+
 
     export const bubble = {
       addBubbles(obj){
         bubbles.push(obj);
       },
-      removeBubble(bubble) {
-        // const index = this.bubbles.indexOf(bubble);
-        // if (index > -1) {
-        //   this.bubbles.splice(index, 1);
-        // }
+      // removeBubbleAt(row, col) {
+      // // Tìm bubble có row và col tương ứng
+      //   const bubbleList = bubble.getListBubble();
+      //   const bubbleToRemove = bubbleList.find(b => b.row === row && b.col === col);
+
+      //   if (bubbleToRemove) {
+      //     bubble.removeBubbles(bubbleToRemove);
+      //     console.log(`Bubble at row ${row}, col ${col} removed.`);
+      //   } else {
+      //     console.log("Bubble not found at the specified position.");
+      //   }
+      // },
+      // removeBubbles(circleToRemove) {
+      //   const index = this.bubbles.indexOf(circleToRemove);
+      //   if (index > -1) {
+      //     this.bubbles.splice(index, 1);  // Xóa phần tử khỏi mảng
+      //     this.collisionManager.removeCollider(circleToRemove.collider); // Loại bỏ va chạm (nếu có)
+      //     console.log(`Removed bubble at position (${circleToRemove.row}, ${circleToRemove.col})`);
+      //   } else {
+      //     console.log("Bubble not found.");
+      //   }
+      //  },
+      remove(row,col){
+        bubbles = bubbles.filter(arr => arr !== row);
       },
       getListBubble(){
         return bubbles;
