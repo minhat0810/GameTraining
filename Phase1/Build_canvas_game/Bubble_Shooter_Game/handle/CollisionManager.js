@@ -1,7 +1,11 @@
 import { gameState } from "../main/index.js";
 export class CollisionManager {
+
+  static instance = null;
+
   constructor() {
     this.colliders = [];
+    CollisionManager.instance = this
   }
 
   addCollider(collider) {

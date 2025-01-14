@@ -19,7 +19,7 @@
   const colors = ["red", "blue", "green", "yellow", "purple"];
   let shooting;
   let predictBullet;
-  let bullet;
+  //let bullet;
   let bullets = [];
   let mapLoaded = false;
   let firstShoot = true;
@@ -42,51 +42,34 @@
       getGrid() {
         return bubbles; // Trả về lưới bóng
       },
-      clear(){
-        bubbles = [];
+      setBullet(val){
+        bullets.push(val);       
       },
-      setDraw(val){
-        this.firstDrawMap = val;
+      getBullet(){
+        return bullets;
       },
-      getDraw(){
-        return this.firstDrawMap;
+      removeBullet(index){
+        bullets.splice(index,1);
       }
     };
 
 
-    export const bubble = {
-      addBubbles(obj){
-        bubbles.push(obj);
-      },
-      // removeBubbleAt(row, col) {
-      // // Tìm bubble có row và col tương ứng
-      //   const bubbleList = bubble.getListBubble();
-      //   const bubbleToRemove = bubbleList.find(b => b.row === row && b.col === col);
-
-      //   if (bubbleToRemove) {
-      //     bubble.removeBubbles(bubbleToRemove);
-      //     console.log(`Bubble at row ${row}, col ${col} removed.`);
-      //   } else {
-      //     console.log("Bubble not found at the specified position.");
-      //   }
-      // },
-      // removeBubbles(circleToRemove) {
-      //   const index = this.bubbles.indexOf(circleToRemove);
-      //   if (index > -1) {
-      //     this.bubbles.splice(index, 1);  // Xóa phần tử khỏi mảng
-      //     this.collisionManager.removeCollider(circleToRemove.collider); // Loại bỏ va chạm (nếu có)
-      //     console.log(`Removed bubble at position (${circleToRemove.row}, ${circleToRemove.col})`);
-      //   } else {
-      //     console.log("Bubble not found.");
-      //   }
-      //  },
-      remove(row,col){
-        bubbles = bubbles.filter(arr => arr !== row);
-      },
-      getListBubble(){
-        return bubbles;
-      }
-    }
+    // export const bubble = {
+    //   addBubbles(obj){
+    //     bubbles.push(obj);
+    //   },
+    //   getListBubble(){
+    //     return bubbles;
+    //   },
+    //   // clear(){
+    //   //   bubbles.splice(0,bubbles.length);
+    //   //   bubble.length = 0;
+    //   //  // console.log(bubbles);       
+    //   // }
+    //   remove(index){
+    //      bubbles.splice(index,1);
+    //   }
+    // }
 
     export const mapDatas = {
       setMapData(val){
@@ -96,10 +79,9 @@
         return mapData;
       }
     }
- 
 
-    
-
+    // console.log(bubbles);
+    // bubbles.splice(4,1)
 
     
   let firstBall = getRandomColor();
@@ -115,43 +97,45 @@
       },
     }
 
-
   const queue = new BallPrediction();
-  const inputController = new InputController(canvas, updateRotationToMouse,queue,shooting,getRandomColor,shootBullet);
-  const collisionManager = new CollisionManager();
   const shoot = new Shooter(canvas.width / 2 - 50,canvas.height - 60,100,80,350,imgPlayer);
-  const drawShoot = new Draw(context,shoot);
+  const collisionManager = new CollisionManager();
+  const map = new Map(context, ballRadius, collisionManager, canvas);
+  const inputController = new InputController(canvas, updateRotationToMouse, shoot,queue,getRandomColor,collisionManager,map);
   
-  const map = new Map(context,ballRadius,collisionManager,canvas);
+  const drawShoot = new Draw(context,shoot);
+
  // const map = new Map(4, 10);
   const drawMap = new Draw(context,map,ballRadius,collisionManager);
   const lazy = new Shooter(230, canvas.height - 110, 100, 80, 350, dream);
   let first = new Ball(280, 610, 10, 0, firstBall, 0, 0, map.checkMerge.bind(map));
+ // const bullet = new Ball()
+  queue.enqueue(firstBall);
+
  
-    queue.enqueue(firstBall);
-
-
-
-  // const predictBullet = nextBullet.getBullet();
-  // console.log(predictBullet);
-  
-
+  if (!mapLoaded) {
+    map.loadMap();
+    mapLoaded = true;
+  }
+   
 
   function updateRotationToMouse(event) {
     mouseX = event.clientX - canvas.offsetLeft;
     mouseY = event.clientY - canvas.offsetTop;
+
+    return {x: mouseX , y: mouseY}
   }
 
   //const getBullets = () => bullets;
 
-  function shootBullet(color) {
-    const angle = shoot.calculateAngleToMouse(mouseX,mouseY); // Tính toán góc bắn
-    bullet = new Ball(canvas.width / 2,canvas.height - 80,ballRadius,null,color,800,angle, map.checkMerge.bind(map));
-    collisionManager.addCollider(bullet.collider);
-    bullets.push(bullet);
+  // function shootBullet(color) {
+  //   const angle = shoot.calculateAngleToMouse(mouseX,mouseY); 
+  //   bullet = new Ball(canvas.width / 2,canvas.height - 80,ballRadius,null,color,800,angle, map.checkMerge.bind(map));
+  //   collisionManager.addCollider(bullet.collider);
+  //   bullets.push(bullet);
 
-    return bullet;
-  } 
+  //   return bullet;
+  // } 
 
 
   function getRandomColor() {
@@ -170,39 +154,34 @@
   function gameLoop(timeStamp) {
     const deltaTime = (timeStamp - lastTime) / 1000;
     lastTime = timeStamp;
-
-
     context.clearRect(0, 0, canvas.width, canvas.height);
- //   console.log(mapDatas.getMapData());
-    
-    
-   // drawMap.drawGrid(40,level1,ballRadius);
+
     if(firstShoot){
       first.draw(context);
     }
-     if (!mapLoaded) {
-       map.loadMap();
-       mapLoaded = true; 
-     }
+     
     drawShoot.drawShooter(shoot);
     drawShoot.drawShooter(lazy);
     if(gameState.getShoot(true)){
        drawShoot.drawPrediction(shoot, mouseX, mouseY, canvas, ballRadius);
     }
+   
+    //console.log(gameState.getBullet());
     
-    for (const bullet of bullets) {
-      bullet.updatePosition(deltaTime,canvas,isShoot); // Cập nhật vị trí viên đạn
-      bullet.draw(context);
-      // if (bullet.y < -bullet.radius) {
-      //   bullets.splice(bullet, 1);
-      //   collisionManager.addCollider(bullet);
-      //   collisionManager.removeCollider(bullet);
-      // }
+    
+   // console.log(bullets);
+    
+    if(bullets != 0){
+     // console.log(bullets);
+      for (const bullet of bullets) {
+        bullet.updatePosition(deltaTime,canvas,isShoot);
+        bullet.draw(context);
+      }
     }
-     for (const bubbleObj of bubbles) {
-        bubbleObj.draw(context); 
-     }
 
+    map.draw(context)
+    
+     
     predictBullet = nextBullet.getBullet();
     
     if (predictBullet instanceof Ball) {

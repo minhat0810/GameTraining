@@ -1,5 +1,5 @@
 import CircleCollider from "../handle/CircleCollider.js";
-import { bubble, gameState, mapDatas } from "../main/index.js";
+import {  gameState, mapDatas } from "../main/index.js";
 
 export class Ball {
   constructor(
@@ -22,6 +22,7 @@ export class Ball {
     this.collider.ball = this;
     this.collider.radius = radius;
     this.onCollideCorrectColor = onCollideCorrectColor;
+    this.bubbles = [];
     if (imageSrc) {
       this.image = new Image();
       this.image.src = imageSrc;
@@ -31,6 +32,14 @@ export class Ball {
     this.y = y;
     
   }
+
+  pushBubble(bubble){
+    this.bubbles.push(bubble);
+  }
+
+  getListBubble(){
+        return bubbles;
+  };
 
   draw(context) {
     if (this.image) {
@@ -95,10 +104,11 @@ export class Ball {
 
   onCollision(otherCollider) {
     let ballRadius = 20;
- 
+    //console.log(this.bubbles);
+    
     
     gameState.setShoot(true);
-    const list = bubble.getListBubble();
+    //const list = bubble.getListBubble();
     this.speed = 0;
     //this.color === other.color &&
     if (this.collider.isColliding && otherCollider.isColliding) {
@@ -111,37 +121,35 @@ export class Ball {
       let x = otherCollider.x;
       let gridRows = 5;
       let gridCols = 10;
-
-     // 
-      bubble.addBubbles(this);
-
-    //  console.log(this);
       
+
 
       const row = Math.floor((y - ballRadius) / (ballRadius * 2));
       const isOdd = row % 2 !== 0;
-      const col = Math.floor(
-        (x - ballRadius - (isOdd ? ballRadius : 0)) / (ballRadius * 2)
-      );
+      const col = Math.floor((x - ballRadius - (isOdd ? ballRadius : 0)) / (ballRadius * 2));
+      this.row = row;
+      this.col = col;
 
+      console.log(this.row , this.col);
+      
       if (isOdd) {
         this.x = this.x - deviationX - ballRadius;
       } else {
         this.x = this.x - deviationX + ballRadius;
       }
-      if (this.color == otherCollider.ball.color) {
+ //     if (this.color == otherCollider.ball.color) {
+    //    console.log(mapDatas.getMapData());
+         //  console.log(otherCollider);
         
-       // console.log();
-       // mapDatas.getMapData()[4][0] = '';
-        //console.log(mapDatas.getMapData());
-        
-        this.onCollideCorrectColor?.(row,col,this,mapDatas.getMapData(),gridRows,gridCols);
+         this.onCollideCorrectColor?.(row,col,this,mapDatas.getMapData(),gridRows,gridCols);
         //console.log(this.y);
-      }
+       //  this.onCollideCorrectColor?.(row,col,this,this.bubbles,gridRows,gridCols);
+    //  }
       // let bubbleAtPosition = this.getBubbleAt(x, y,ballRadius);
       // console.log(bubbleAtPosition.color);
     }
   }
+
 }
 
  
