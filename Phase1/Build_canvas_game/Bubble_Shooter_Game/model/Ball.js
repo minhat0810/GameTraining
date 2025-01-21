@@ -30,16 +30,15 @@ export class Ball {
 
     this.x = x;
     this.y = y;
-    
   }
 
-  pushBubble(bubble){
+  pushBubble(bubble) {
     this.bubbles.push(bubble);
   }
 
-  getListBubble(){
-        return bubbles;
-  };
+  getListBubble() {
+    return bubbles;
+  }
 
   draw(context) {
     if (this.image) {
@@ -64,6 +63,7 @@ export class Ball {
   updatePosition(deltaTime, canvas, isShoot) {
     this.x += Math.cos(this.angle) * this.speed * deltaTime;
     this.y += Math.sin(this.angle) * this.speed * deltaTime; // Di chuyển theo hướng chuột
+    
     if (this.x + this.radius > canvas.width || this.x - this.radius < 0) {
       this.angle = Math.PI - this.angle;
     }
@@ -74,6 +74,10 @@ export class Ball {
     }
 
     return { y: this.y };
+  }
+
+  updateFall(deltaTime){
+    this.y += 700 * deltaTime;
   }
 
   get onCollideCorrectColor() {
@@ -100,19 +104,16 @@ export class Ball {
   set y(val) {
     this.collider.y = val;
   }
- 
 
   onCollision(otherCollider) {
     let ballRadius = 20;
     //console.log(this.bubbles);
-    
-    
+
     gameState.setShoot(true);
     //const list = bubble.getListBubble();
     this.speed = 0;
     //this.color === other.color &&
     if (this.collider.isColliding && otherCollider.isColliding) {
-      
       // console.log(mapData);
       let deviationX = this.x - otherCollider.x;
       let deviationY = otherCollider.y + 40;
@@ -121,35 +122,30 @@ export class Ball {
       let x = otherCollider.x;
       let gridRows = 5;
       let gridCols = 10;
-      
-
 
       const row = Math.floor((y - ballRadius) / (ballRadius * 2));
       const isOdd = row % 2 !== 0;
-      const col = Math.floor((x - ballRadius - (isOdd ? ballRadius : 0)) / (ballRadius * 2));
+      const col = Math.floor(
+        (x - ballRadius - (isOdd ? ballRadius : 0)) / (ballRadius * 2)
+      );
       this.row = row;
       this.col = col;
 
-      console.log(this.row , this.col);
-      
       if (isOdd) {
         this.x = this.x - deviationX - ballRadius;
       } else {
         this.x = this.x - deviationX + ballRadius;
       }
- //     if (this.color == otherCollider.ball.color) {
-    //    console.log(mapDatas.getMapData());
-         //  console.log(otherCollider);
-        
-         this.onCollideCorrectColor?.(row,col,this,mapDatas.getMapData(),gridRows,gridCols);
-        //console.log(this.y);
-       //  this.onCollideCorrectColor?.(row,col,this,this.bubbles,gridRows,gridCols);
-    //  }
-      // let bubbleAtPosition = this.getBubbleAt(x, y,ballRadius);
-      // console.log(bubbleAtPosition.color);
+      this.onCollideCorrectColor?.(
+        row,
+        col,
+        this,
+        mapDatas.getMapData(),
+        gridRows,
+        gridCols
+      );
     }
   }
-
 }
 
  

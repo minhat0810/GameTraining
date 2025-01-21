@@ -39,7 +39,7 @@ export class InputController {
 
         // const bullet = this.shootBullet(this.shooting);
         this.shootBullet(this.shooting,shoot,canvas,this.ballRadius,e);
-       // gameState.setShoot(false); 
+        gameState.setShoot(false); 
       }
     });
       
@@ -58,33 +58,14 @@ export class InputController {
   }
   shootBullet(color,shoot,canvas,ballRadius,event) {
     const angle = shoot.calculateAngleToMouse(event.clientX - canvas.offsetLeft,event.clientY - canvas.offsetTop); 
-    //console.log(event.clientX - canvas.offsetLeft,event.clientY - canvas.offsetTop);
-    
-    let bullet = new Ball(canvas.width / 2,canvas.height - 60,20,null,color,1000,angle,this.map.checkMerge.bind(this.map));
 
-    //console.log(bullet);
-    
-    
+    let bullet = new Ball(canvas.width / 2,canvas.height - 60,20,null,color,1000,angle,this.map.checkMerge.bind(this.map));
     this.collisionManager.addCollider(bullet.collider);
-  //  this.bullets.push(bullet);
-    //    // console.log(this.bullets);
-    // // return bullet;
-    // for (const bullet in this.bullets) {
-    //  //console.log(bullet);
-    //   bullet.upda
-    // }
     gameState.setBullet(bullet);
    // console.log(gameState.getBullet());
     
   } 
-  // drawBullet(context){
-  //   this.bullets.forEach(bullet => bullet.drawBullet(context));
-  // }
-  
-  // updateRotationToMouse(event) {
-  //   mouseX = event.clientX - canvas.offsetLeft;
-  //   mouseY = event.clientY - canvas.offsetTop;
-  // }
+
 }
 
 

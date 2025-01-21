@@ -27,6 +27,8 @@
   let mapData = [];
   let dream = "../assets/img/Player/dream.png";
   let firstDrawMap = true;
+  let deltaTime;
+  let disconnectBubble = [];
   
 
     export const gameState = {
@@ -50,26 +52,15 @@
       },
       removeBullet(index){
         bullets.splice(index,1);
+      },
+      setBubblesFall(val){
+        disconnectBubble.push(val)
+      },
+      getBubblesFall(){
+        return disconnectBubble;
       }
     };
 
-
-    // export const bubble = {
-    //   addBubbles(obj){
-    //     bubbles.push(obj);
-    //   },
-    //   getListBubble(){
-    //     return bubbles;
-    //   },
-    //   // clear(){
-    //   //   bubbles.splice(0,bubbles.length);
-    //   //   bubble.length = 0;
-    //   //  // console.log(bubbles);       
-    //   // }
-    //   remove(index){
-    //      bubbles.splice(index,1);
-    //   }
-    // }
 
     export const mapDatas = {
       setMapData(val){
@@ -82,6 +73,7 @@
 
     // console.log(bubbles);
     // bubbles.splice(4,1)
+
 
     
   let firstBall = getRandomColor();
@@ -104,12 +96,10 @@
   const inputController = new InputController(canvas, updateRotationToMouse, shoot,queue,getRandomColor,collisionManager,map);
   
   const drawShoot = new Draw(context,shoot);
-
- // const map = new Map(4, 10);
   const drawMap = new Draw(context,map,ballRadius,collisionManager);
   const lazy = new Shooter(230, canvas.height - 110, 100, 80, 350, dream);
   let first = new Ball(280, 610, 10, 0, firstBall, 0, 0, map.checkMerge.bind(map));
- // const bullet = new Ball()
+
   queue.enqueue(firstBall);
 
  
@@ -124,18 +114,7 @@
     mouseY = event.clientY - canvas.offsetTop;
 
     return {x: mouseX , y: mouseY}
-  }
-
-  //const getBullets = () => bullets;
-
-  // function shootBullet(color) {
-  //   const angle = shoot.calculateAngleToMouse(mouseX,mouseY); 
-  //   bullet = new Ball(canvas.width / 2,canvas.height - 80,ballRadius,null,color,800,angle, map.checkMerge.bind(map));
-  //   collisionManager.addCollider(bullet.collider);
-  //   bullets.push(bullet);
-
-  //   return bullet;
-  // } 
+  } 
 
 
   function getRandomColor() {
@@ -150,9 +129,15 @@
     context.fillText(`Health: ${health}`, 10, 40);
   }
 
+      
+
   let lastTime = 0;
   function gameLoop(timeStamp) {
-    const deltaTime = (timeStamp - lastTime) / 1000;
+     deltaTime = (timeStamp - lastTime) / 1000;
+   //  gameState.setDeltaTime(deltaTime)
+    // console.log(gameState.getDeltaTime());
+     
+
     lastTime = timeStamp;
     context.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -165,19 +150,31 @@
     if(gameState.getShoot(true)){
        drawShoot.drawPrediction(shoot, mouseX, mouseY, canvas, ballRadius);
     }
-   
-    //console.log(gameState.getBullet());
-    
-    
-   // console.log(bullets);
+
+    //console.log(map.getBubblesFall());
     
     if(bullets != 0){
-     // console.log(bullets);
       for (const bullet of bullets) {
         bullet.updatePosition(deltaTime,canvas,isShoot);
         bullet.draw(context);
       }
     }
+
+  //  if(this.disconnectBubble != null){
+  //    console.log(this.disconnectBubble);
+  //  }
+    
+    // for( const fall of map.getBubblesFall()){
+    //     fall.updateBallFall(deltaTime);
+    // }
+
+    if(gameState.getBubblesFall().length != 0){
+      // console.log(disconnectBubble);
+      for(const fall of disconnectBubble){
+        fall.updateFall(deltaTime);
+      }
+    }
+    
 
     map.draw(context)
     
@@ -185,7 +182,6 @@
     predictBullet = nextBullet.getBullet();
     
     if (predictBullet instanceof Ball) {
-      // console.log(123)
       predictBullet.draw(context);
       firstShoot = false;
     }
