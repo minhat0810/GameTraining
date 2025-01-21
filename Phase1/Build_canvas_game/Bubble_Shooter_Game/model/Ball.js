@@ -37,7 +37,7 @@ export class Ball {
   }
 
   getListBubble() {
-    return bubbles;
+    return this.bubbles;
   }
 
   draw(context) {
@@ -130,9 +130,12 @@ export class Ball {
       );
       this.row = row;
       this.col = col;
+      console.log(row);
+      
+      
 
       if (isOdd) {
-        this.x = this.x - deviationX - ballRadius;
+        this.x = this.x - deviationX - ballRadius;           
       } else {
         this.x = this.x - deviationX + ballRadius;
       }

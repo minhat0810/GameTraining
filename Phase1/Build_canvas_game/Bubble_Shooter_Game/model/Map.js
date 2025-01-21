@@ -93,8 +93,8 @@ export class Map {
     let visited = new Set();
     let disconnect = [];
 
-    // this.balls.push(ball);
-    // bubbles.push(ball);
+    this.balls.push(ball);
+    bubbles.push(ball);
 
     this.findCluster(
       row,
@@ -107,7 +107,7 @@ export class Map {
       mapData
     );
 
-    if (bubbles.length >= 2) {
+    if (bubbles.length >= 3) {
       bubbles.forEach((bu) => {
         let index = this.balls.indexOf(bu);
         this.balls.splice(index, 1);
@@ -138,7 +138,8 @@ export class Map {
     let currentBubble = this.balls.find((b) => b.row === row && b.col === col);
 
     //  mapData[row][col+1].type == 'empty' ||
-    console.log(mapData[row][col]);
+   //console.log(this.balls[row][col]);
+   
     
     
     
@@ -181,7 +182,7 @@ export class Map {
   }
 
   findDisconnectBubbles(mapData, row, col, disconnect) {
-    if (row >= mapData.length) return;
+    if (row >= mapData.length || row == 0) return;
 
     //console.log(mapData[row][col].type);
     //console.log(mapData[row][col].type);

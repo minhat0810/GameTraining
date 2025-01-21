@@ -11,7 +11,8 @@
     { "type": "bubble", "colorIndex": 1 ,"row": 0, "col": 8},
     { "type": "bubble", "colorIndex": 1 ,"row": 0, "col": 9}
    
-  ],
+  ]
+  ,
   [
     { "type": "bubble", "colorIndex": 2 , "row": 1, "col": 1},
     { "type": "bubble", "colorIndex": 2 , "row": 1, "col": 2},
