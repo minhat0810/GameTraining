@@ -128,24 +128,26 @@ export class Ball {
       const col = Math.floor(
         (x - ballRadius - (isOdd ? ballRadius : 0)) / (ballRadius * 2)
       );
-      this.row = row;
+      this.row = row+1;
       this.col = col;
-      console.log(row);
+   //   console.log(row);
       
       
 
-      if (isOdd) {
-        this.x = this.x - deviationX - ballRadius;           
-      } else {
-        this.x = this.x - deviationX + ballRadius;
-      }
+      // if (isOdd) {
+      //   this.x = this.x - deviationX - ballRadius;           
+      // } else {
+      //   this.x = this.x - deviationX + ballRadius;
+      // }
       this.onCollideCorrectColor?.(
         row,
         col,
         this,
         mapDatas.getMapData(),
         gridRows,
-        gridCols
+        gridCols,
+        deviationX,
+        deviationY
       );
     }
   }

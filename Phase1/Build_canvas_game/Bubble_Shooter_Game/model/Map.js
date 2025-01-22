@@ -21,32 +21,6 @@ export class Map {
     this.balls.forEach((ball) => ball.draw(context));
   }
 
-  // bubbles(){
-  //   return this.balls;
-  // }
-  // bubblesFall(val){
-  //   return val;
-  // }
-
-  updateBallFall(deltaTime) {
-    console.log(this.disconnect.y);
-    this.disconnect.y = 20 * deltaTime;
-  }
-
-  // updateDisconnectBubbles(deltaTime) {
-  //   const gravity = 200; // Tốc độ rơi, pixel/giây
-  //   const bubblesFall = gameState.getBubblesFall();
-
-  //   for (let i = bubblesFall.length - 1; i >= 0; i--) {
-  //     const bubble = bubblesFall[i];
-  //     bubble.y += gravity * deltaTime; // Cập nhật vị trí bóng
-
-  //     // Nếu bóng rơi ra ngoài canvas, xóa khỏi danh sách
-  //     if (bubble.y - bubble.radius > this.canvas.height) {
-  //       bubblesFall.splice(i, 1); // Xóa bóng khỏi danh sách
-  //     }
-  //   }
-  // }
 
   loadMap() {
     fetch("../assets/levels/level_1.json")
@@ -88,10 +62,45 @@ export class Map {
   //       this.balls[i - 1].x + this.balls[i - 1].radius * 2 + this.distance; // Cập nhật vị trí x với khoảng cách
   //   }
   // }
-  checkMerge(row, col, ball, mapData, gridRows, gridCols) {
+  checkMerge(row, col, ball, mapData, gridRows, gridCols,deviationX,deviationY) {
     let bubbles = [];
     let visited = new Set();
     let disconnect = [];
+
+   // console.log(deviationX,deviationY);
+
+
+   
+    let bullet = this.balls.find((bullet) => bullet.col == col && bullet.row == row+1)
+    console.log(bullet);
+    
+
+    // if (row % 2 !== 0) {
+
+    // }
+    if(bullet != undefined){
+        console.log("ho");
+        if (ball.row % 2 == 0) {
+          ball.x = ball.x - deviationX + 20;
+        } else {
+          ball.x = ball.x - deviationX - 20;
+          // console.log(ball.x - deviationX + 20);
+        }
+      // console.log(ball.row);
+    }
+    else{
+      console.log("hi"); 
+      console.log(ball.row);
+      if(ball.row % 2 == 0){
+         ball.x = ball.x - deviationX - 20;
+      }else{
+         ball.x = ball.x - deviationX + 20;
+        // console.log(ball.x - deviationX + 20);
+        
+      }
+    }
+   
+    
 
     this.balls.push(ball);
     bubbles.push(ball);
@@ -140,45 +149,73 @@ export class Map {
     //  mapData[row][col+1].type == 'empty' ||
    //console.log(this.balls[row][col]);
    
-    
+    try {
+        if (currentBubble.color !== ball.color) {
+          return;
+        }
+
+            visited.add(key);
+
+            mapData[row][col].type = "empty";
+            bubbles.push(currentBubble);
+
+            const directions = [
+              [-1, 0], // Trên
+              [1, 0], // Dưới
+              [0, -1], // Trái
+              [0, 1], // Phải
+            ];
+
+            for (const [dx, dy] of directions) {
+              this.findCluster(
+                row + dy,
+                col + dx,
+                bubbles,
+                visited,
+                ball,
+                gridRows,
+                gridCols,
+                mapData
+              );
+            }
+
+    } catch (error) {
+      
+    }
     
     
 
-    let currentBubbleColor = this.colors[mapData[row][col].colorIndex - 1];
+  //  let currentBubbleColor = this.colors[mapData[row][col].colorIndex - 1];
     // let currentBubbleColor = this.balls.find((b) => b.color);
 
-    if (currentBubbleColor !== ball.color) {
-      return;
-    }
-
-    visited.add(key);
-
-    mapData[row][col].type = "empty";
-    // if (mapData[row][col].type == "empty") {
-    //   //console.log("hi");
+    // if (currentBubbleColor !== ball.color) {
+    //   return;
     // }
 
-    bubbles.push(currentBubble);
+    // visited.add(key);
 
-    const directions = [
-      [-1, 0], // Trên
-      [1, 0], // Dưới
-      [0, -1], // Trái
-      [0, 1], // Phải
-    ];
+    // mapData[row][col].type = "empty";
+    // bubbles.push(currentBubble);
 
-    for (const [dx, dy] of directions) {
-      this.findCluster(
-        row + dy,
-        col + dx,
-        bubbles,
-        visited,
-        ball,
-        gridRows,
-        gridCols,
-        mapData
-      );
-    }
+    // const directions = [
+    //   [-1, 0], // Trên
+    //   [1, 0], // Dưới
+    //   [0, -1], // Trái
+    //   [0, 1], // Phải
+    // ];
+
+    // for (const [dx, dy] of directions) {
+    //   this.findCluster(
+    //     row + dy,
+    //     col + dx,
+    //     bubbles,
+    //     visited,
+    //     ball,
+    //     gridRows,
+    //     gridCols,
+    //     mapData
+    //   );
+    // }
   }
 
   findDisconnectBubbles(mapData, row, col, disconnect) {
