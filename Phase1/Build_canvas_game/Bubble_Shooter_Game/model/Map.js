@@ -71,50 +71,51 @@ export class Map {
 
 
    
-    let bullet = this.balls.find((bullet) => bullet.col == col && bullet.row == row+1)
-    console.log(bullet);
+    let bubble = this.balls.find((bubble) => bubble.col == col && bubble.row == row+1)
+
+    let bubbleRight = this.balls.find((bubble) => bubble.col+1 == col && bubble.row == row+1)
+    let bubbleLeft = this.balls.find((bubble) => bubble.col-1 == col && bubble.row == row+1)
     
-
-    // if (row % 2 !== 0) {
-
-    // }
-    if(bullet != undefined){
-        console.log("ho");
-        if (ball.row % 2 == 0) {
-          ball.x = ball.x - deviationX + 20;
+        if (bubble != undefined) {
+              //console.log("yes");
+          if (ball.row % 2 == 0) {
+              //  if(bubbleLeft == undefined){
+              ball.x = ball.x - deviationX + 20;
+              ball.col += 1;
+              //    console.log(bubbleLeft);
+              //  }else{
+              //     ball.y = ball.y - 40;
+              //  } 
+          } else {        
+              //    if(bubbleRight == undefined){
+              ball.x = ball.x - deviationX - 20;
+              ball.col -= 1;
+              //   console.log(bubbleRight); 
+              // } else {
+              //   ball.y = ball.y - 40;
+              // }
+              // console.log(ball.x - deviationX + 20);
+          }
         } else {
-          ball.x = ball.x - deviationX - 20;
-          // console.log(ball.x - deviationX + 20);
+         // console.log("no");
+          if (ball.row % 2 == 0) {
+            ball.x = ball.x - deviationX - 20;
+          } else {
+            ball.x = ball.x - deviationX + 20;
+          }
         }
-      // console.log(ball.row);
-    }
-    else{
-      console.log("hi"); 
-      console.log(ball.row);
-      if(ball.row % 2 == 0){
-         ball.x = ball.x - deviationX - 20;
-      }else{
-         ball.x = ball.x - deviationX + 20;
-        // console.log(ball.x - deviationX + 20);
-        
-      }
-    }
+
    
     
 
     this.balls.push(ball);
     bubbles.push(ball);
 
-    this.findCluster(
-      row,
-      col,
-      bubbles,
-      visited,
-      ball,
-      gridRows,
-      gridCols,
-      mapData
-    );
+    console.log(bubbles);
+    
+    
+
+    this.findCluster(row,col,bubbles,visited,ball,gridRows,gridCols,mapData);
 
     if (bubbles.length >= 3) {
       bubbles.forEach((bu) => {
@@ -158,6 +159,7 @@ export class Map {
 
             mapData[row][col].type = "empty";
             bubbles.push(currentBubble);
+            
 
             const directions = [
               [-1, 0], // Trên
@@ -220,26 +222,45 @@ export class Map {
 
   findDisconnectBubbles(mapData, row, col, disconnect) {
     if (row >= mapData.length || row == 0) return;
+    // console.log(this.balls);
+    
 
     //console.log(mapData[row][col].type);
     //console.log(mapData[row][col].type);
-    if (mapData[row - 1][col].type == "empty") {
-      let disconnectBubble = this.balls.find(
-        (b) => b.row === row && b.col === col
-      );
+    // if (mapData[row - 1][col].type == "empty") {
+    //   let disconnectBubble = this.balls.find(
+    //     (b) => b.row === row && b.col === col
+    //   );
 
-      mapData[row][col].type = "empty";
-      let index = this.balls.indexOf(disconnectBubble);
-      if (index != -1) {
-        // this.balls.splice(index, 1);
-        // console.log(disconnectBubble.y);
-        //  disconnectBubble.y += 100;
-        //    console.log(gameState.getDeltaTime());
-        gameState.setBubblesFall(disconnectBubble);
-        //    this.collisionManager.removeCollider(disconnectBubble.collider)
-      }
-      console.log(index);
-    }
+    //   mapData[row][col].type = "empty";
+    //   let index = this.balls.indexOf(disconnectBubble);
+    //   if (index != -1) {
+    //     // this.balls.splice(index, 1);
+    //     // console.log(disconnectBubble.y);
+    //     //  disconnectBubble.y += 100;
+    //     //    console.log(gameState.getDeltaTime());
+    //     gameState.setBubblesFall(disconnectBubble);
+    //     //setTimeout(this.balls.splice(index, 1),3000);
+    //     //console.log(this.balls);
+
+    //     //    this.collisionManager.removeCollider(disconnectBubble.collider)
+    //   }
+    //   console.log(index);
+    // }
+
+     try {
+       let disconnectBubble = this.balls.find(
+         (b) => b.row === row && b.col === col
+       );
+
+       if(disconnectBubble != undefined){
+       // console.log(disconnectBubble);
+         gameState.setBubblesFall(disconnectBubble);
+       }
+     } catch (error) {
+      
+     }
+      
 
     return this.findDisconnectBubbles(mapData, row + 1, col);
   }

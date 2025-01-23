@@ -61,6 +61,7 @@ export class InputController {
 
     let bullet = new Ball(canvas.width / 2,canvas.height - 60,20,null,color,1000,angle,this.map.checkMerge.bind(this.map));
     this.collisionManager.addCollider(bullet.collider);
+    //this.map.balls.push(bullet)
     gameState.setBullet(bullet);
    // console.log(gameState.getBullet());
     
