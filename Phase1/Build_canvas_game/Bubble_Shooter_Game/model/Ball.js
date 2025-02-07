@@ -23,6 +23,7 @@ export class Ball {
     this.collider.radius = radius;
     this.onCollideCorrectColor = onCollideCorrectColor;
     this.bubbles = [];
+    this.isFall  = false;
     if (imageSrc) {
       this.image = new Image();
       this.image.src = imageSrc;
@@ -32,13 +33,7 @@ export class Ball {
     this.y = y;
   }
 
-  pushBubble(bubble) {
-    this.bubbles.push(bubble);
-  }
 
-  getListBubble() {
-    return this.bubbles;
-  }
 
   draw(context) {
     if (this.image) {
@@ -60,7 +55,7 @@ export class Ball {
     }
   }
 
-  updatePosition(deltaTime, canvas, isShoot) {
+  updatePosition(deltaTime, canvas) {
     this.x += Math.cos(this.angle) * this.speed * deltaTime;
     this.y += Math.sin(this.angle) * this.speed * deltaTime; // Di chuyển theo hướng chuột
     
@@ -77,7 +72,7 @@ export class Ball {
   }
 
   updateFall(deltaTime){
-    this.y += 700 * deltaTime;
+    this.y += 1000 * deltaTime;
   }
 
   get onCollideCorrectColor() {
@@ -124,14 +119,17 @@ export class Ball {
       let gridCols = 10;
 
       const row = Math.floor((y - ballRadius) / (ballRadius * 2));
+      
       const isOdd = row % 2 !== 0;
       const col = Math.floor(
         (x - ballRadius - (isOdd ? ballRadius : 0)) / (ballRadius * 2)
       );
       this.row = row+1;
       this.col = col;
+    
    //   console.log(row);
       
+   //   console.log(otherCollider);
       
 
       // if (isOdd) {
@@ -143,7 +141,7 @@ export class Ball {
         row,
         col,
         this,
-        mapDatas.getMapData(),
+      //  mapDatas.getMapData(),
         gridRows,
         gridCols,
         deviationX,

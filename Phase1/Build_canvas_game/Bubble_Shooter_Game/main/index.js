@@ -15,7 +15,6 @@
   let level1 = "../assets/levels/level_1.json";
   let imgPlayer = "../assets/img/Player/pika_lazy.png";
   const ballRadius = 20;
-  let isShoot = true;
   const colors = ["red", "blue", "green", "yellow", "purple"];
   let shooting;
   let predictBullet;
@@ -33,32 +32,36 @@
 
     export const gameState = {
       isShoot: true,
+      isFall: false,
 
       setShoot(value) {
         this.isShoot = value;
       },
-
       getShoot() {
         return this.isShoot;
       },
+      setFall(value) {
+        this.isFall = value;
+      },
+      getFall() {
+        return this.isFall;
+      },
       getGrid() {
-        return bubbles; // Trả về lưới bóng
+        return bubbles;
       },
-      setBullet(val){
-        bullets.push(val);       
+      setBullet(val) {
+        bullets.push(val);
       },
-      getBullet(){
+      getBullet() {
         return bullets;
       },
-      removeBullet(index){
-        bullets.splice(index,1);
+
+      setBubblesFall(val) {
+        disconnectBubble.push(val);
       },
-      setBubblesFall(val){
-        disconnectBubble.push(val)
-      },
-      getBubblesFall(){
+      getBubblesFall() {
         return disconnectBubble;
-      }
+      },
     };
 
 
@@ -106,7 +109,9 @@
   if (!mapLoaded) {
     map.loadMap();
     mapLoaded = true;
+
   }
+  
    
 
   function updateRotationToMouse(event) {
@@ -153,12 +158,12 @@
 
     //console.log(map.getBubblesFall());
     
-    if(bullets != 0){
-      for (const bullet of bullets) {
-        bullet.updatePosition(deltaTime,canvas,isShoot);
-        bullet.draw(context);
-      }
-    }
+    // if(bullets != 0){
+    //   for (const bullet of bullets) {
+    //     bullet.updatePosition(deltaTime,canvas);
+    //     bullet.draw(context);
+    //   }
+    // }
 
   //  if(this.disconnectBubble != null){
   //    console.log(this.disconnectBubble);
@@ -168,15 +173,22 @@
     //     fall.updateBallFall(deltaTime);
     // }
 
-    if(gameState.getBubblesFall().length != 0){
-      // console.log(disconnectBubble);
-      for(const fall of disconnectBubble){
-        fall.updateFall(deltaTime);
-      }
-    }
-    
+    // if(gameState.getBubblesFall().length != 0){
+    //   // console.log(disconnectBubble);
+    //   for(const fall of disconnectBubble){
+    //     fall.updateFall(deltaTime);
 
+    //   }
+    // }
+    
+    map.shootBullet(deltaTime)
     map.draw(context)
+    //if(gameState.getFall()){
+    map.bulletFall(deltaTime);
+    //   gameState.setFall(false)
+    // }
+    
+  //  console.log(gameState.getFall());
     
      
     predictBullet = nextBullet.getBullet();
