@@ -33,6 +33,7 @@
     export const gameState = {
       isShoot: true,
       isFall: false,
+      timesShoot: 0,
 
       setShoot(value) {
         this.isShoot = value;
@@ -40,28 +41,38 @@
       getShoot() {
         return this.isShoot;
       },
-      setFall(value) {
-        this.isFall = value;
+      updateTimes(){
+        this.timesShoot += 1;
       },
-      getFall() {
-        return this.isFall;
+      times(){
+         return this.timesShoot;
       },
-      getGrid() {
-        return bubbles;
-      },
-      setBullet(val) {
-        bullets.push(val);
-      },
-      getBullet() {
-        return bullets;
-      },
+      timesReset(){
+        this.timesShoot = 0;
+      }
 
-      setBubblesFall(val) {
-        disconnectBubble.push(val);
-      },
-      getBubblesFall() {
-        return disconnectBubble;
-      },
+      // setFall(value) {
+      //   this.isFall = value;
+      // },
+      // getFall() {
+      //   return this.isFall;
+      // },
+      // getGrid() {
+      //   return bubbles;
+      // },
+      // setBullet(val) {
+      //   bullets.push(val);
+      // },
+      // getBullet() {
+      //   return bullets;
+      // },
+
+      // setBubblesFall(val) {
+      //   disconnectBubble.push(val);
+      // },
+      // getBubblesFall() {
+      //   return disconnectBubble;
+      // },
     };
 
 

@@ -126,22 +126,13 @@ export class Ball {
       );
       this.row = row+1;
       this.col = col;
+     // console.log(otherCollider);
+      
     
-   //   console.log(row);
-      
-   //   console.log(otherCollider);
-      
-
-      // if (isOdd) {
-      //   this.x = this.x - deviationX - ballRadius;           
-      // } else {
-      //   this.x = this.x - deviationX + ballRadius;
-      // }
       this.onCollideCorrectColor?.(
         row,
         col,
         this,
-      //  mapDatas.getMapData(),
         gridRows,
         gridCols,
         deviationX,
