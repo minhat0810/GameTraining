@@ -10,7 +10,8 @@ export class Ball {
     color = "red",
     speed,
     angle,
-    onCollideCorrectColor
+    onCollideCorrectColor,
+    type
   ) {
     this.radius = radius;
     this.speed = speed;
@@ -24,6 +25,10 @@ export class Ball {
     this.onCollideCorrectColor = onCollideCorrectColor;
     this.bubbles = [];
     this.isFall  = false;
+    this.isKey = false;
+    this.type = type;
+    this.velocity = 0;
+    this.grativy = 0.2;
     if (imageSrc) {
       this.image = new Image();
       this.image.src = imageSrc;
@@ -36,7 +41,7 @@ export class Ball {
 
 
   draw(context) {
-    if (this.image) {
+    if (this.image && this.image.complete) {
       context.drawImage(
         this.image,
         this.x - this.radius,
@@ -46,10 +51,10 @@ export class Ball {
       );
     } else {
       context.beginPath();
-      context.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
+      context.arc(this.x, this.y+40, this.radius, 0, 2 * Math.PI);
       context.fillStyle = this.color; // Dùng màu sắc được truyền vào
       context.fill();
-      context.lineWidth = 2; // Độ dày của viền
+      context.lineWidth = 1; // Độ dày của viền
       context.strokeStyle = "black"; // Màu viền
       context.stroke();
     }
@@ -72,7 +77,10 @@ export class Ball {
   }
 
   updateFall(deltaTime){
-    this.y += 1000 * deltaTime;
+   // this.y += 1000 * deltaTime * 0.6;
+   this.velocity += this.grativy;
+
+   this.y += this.velocity;
   }
 
   get onCollideCorrectColor() {
@@ -103,7 +111,8 @@ export class Ball {
   onCollision(otherCollider) {
     let ballRadius = 20;
     //console.log(this.bubbles);
-
+//      console.log(otherCollider);
+      
     gameState.setShoot(true);
     //const list = bubble.getListBubble();
     this.speed = 0;
@@ -126,7 +135,8 @@ export class Ball {
       );
       this.row = row+1;
       this.col = col;
-     // console.log(otherCollider);
+      this.radius = 20;
+      //console.log(otherCollider);
       
     
       this.onCollideCorrectColor?.(
@@ -136,7 +146,8 @@ export class Ball {
         gridRows,
         gridCols,
         deviationX,
-        deviationY
+        deviationY,
+        otherCollider,
       );
     }
   }

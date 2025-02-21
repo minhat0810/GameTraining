@@ -1,214 +1,181 @@
   import { Shooter } from "../model/Shooter.js";
-  import { Draw } from "../model/Draw.js";
-  import { InputController } from "../handle/InputController.js";
-  import { BallPrediction } from "../model/BallPrediction.js";
-  import { Ball } from "../model/Ball.js";
-  import { CollisionManager } from "../handle/CollisionManager.js"
-  import { Map } from "../model/Map.js";
+import { Draw } from "../model/Draw.js";
+import { InputController } from "../handle/InputController.js";
+import { BallPrediction } from "../model/BallPrediction.js";
+import { Ball } from "../model/Ball.js";
+import { CollisionManager } from "../handle/CollisionManager.js"
+import { Map } from "../model/Map.js";
+import { LevelManager } from "../handle/LevelManager.js";
+import { GameMenu } from "../model/GameMenu.js";
+import { GameManager } from "../handle/GameManager.js";
 
-  const canvas = document.getElementById("gameCanvas");
-  const context = canvas.getContext("2d");
-
-  const circles = [];
-  let mouseX = 0;
-  let mouseY = 0;
-  let level1 = "../assets/levels/level_1.json";
-  let imgPlayer = "../assets/img/Player/pika_lazy.png";
-  const ballRadius = 20;
-  const colors = ["red", "blue", "green", "yellow", "purple"];
-  let shooting;
-  let predictBullet;
-  //let bullet;
-  let bullets = [];
-  let mapLoaded = false;
-  let firstShoot = true;
-  let bubbles = [];
-  let mapData = [];
-  let dream = "../assets/img/Player/dream.png";
-  let firstDrawMap = true;
-  let deltaTime;
-  let disconnectBubble = [];
-  
-
-    export const gameState = {
-      isShoot: true,
-      isFall: false,
-      timesShoot: 0,
-
-      setShoot(value) {
-        this.isShoot = value;
-      },
-      getShoot() {
-        return this.isShoot;
-      },
-      updateTimes(){
-        this.timesShoot += 1;
-      },
-      times(){
-         return this.timesShoot;
-      },
-      timesReset(){
-        this.timesShoot = 0;
-      }
-
-      // setFall(value) {
-      //   this.isFall = value;
-      // },
-      // getFall() {
-      //   return this.isFall;
-      // },
-      // getGrid() {
-      //   return bubbles;
-      // },
-      // setBullet(val) {
-      //   bullets.push(val);
-      // },
-      // getBullet() {
-      //   return bullets;
-      // },
-
-      // setBubblesFall(val) {
-      //   disconnectBubble.push(val);
-      // },
-      // getBubblesFall() {
-      //   return disconnectBubble;
-      // },
-    };
+const canvas = document.getElementById("gameCanvas");
+const context = canvas.getContext("2d");
 
 
-    export const mapDatas = {
-      setMapData(val){
-          mapData = val;
-      },
-      getMapData(){
-        return mapData;
-      }
-    }
+const circles = [];
+let mouseX = 0;
+let mouseY = 0;
+let level1 = "../assets/levels/level_1.json";
+let imgPlayer = "../assets/img/Player/lazy.png";
+let imgBall1  = "../assets/img/red.png";
+let imgBall2 = "../assets/img/blue.png";
+let imgBall3 = "../assets/img/green.png";
+let imgBall4 = "../assets/img/purple.png";
+let imgBall5 = "../assets/img/yellow.png";
+const ballRadius = 20;
+const colors = ["red", "blue", "green", "yellow", "purple"];
+let shooting;
+let predictBullet;
+//let bullet;
+let bullets = [];
+let mapLoaded = false;
+let firstShoot = true;
+let bubbles = [];
+let mapData = [];
+let dream = "../assets/img/dreamball.png";
+let firstDrawMap = true;
+let deltaTime;
+let disconnectBubble = [];
+const bgImage = new Image();
+bgImage.src = "../assets/img/bgr.jpg"; 
 
-    // console.log(bubbles);
-    // bubbles.splice(4,1)
+// bgImage.onload = function () {
+//   context.drawImage(bgImage, 0, 0, canvas.width, canvas.height);
+// };
 
-
-    
-  let firstBall = getRandomColor();
-
-
-    export const nextBullet = {
-      predictBullet: firstBall,
-      setBullet(value){
-        this.predictBullet = value;
-      },
-       getBullet() {
-        return this.predictBullet;
-      },
-    }
-
-  const queue = new BallPrediction();
-  const shoot = new Shooter(canvas.width / 2 - 50,canvas.height - 60,100,80,350,imgPlayer);
-  const collisionManager = new CollisionManager();
-  const map = new Map(context, ballRadius, collisionManager, canvas);
-  const inputController = new InputController(canvas, updateRotationToMouse, shoot,queue,getRandomColor,collisionManager,map);
-  
-  const drawShoot = new Draw(context,shoot);
-  const drawMap = new Draw(context,map,ballRadius,collisionManager);
-  const lazy = new Shooter(230, canvas.height - 110, 100, 80, 350, dream);
-  let first = new Ball(280, 610, 10, 0, firstBall, 0, 0, map.checkMerge.bind(map));
-
-  queue.enqueue(firstBall);
-
- 
-  if (!mapLoaded) {
-    map.loadMap();
-    mapLoaded = true;
-
+export const gameState = {
+  isShoot: true,
+  isFall: false,
+  timesShoot: 0,
+  levelCompleted: false,
+  setShoot(value) {
+    this.isShoot = value;
+  },
+  getImg(){
+    return imgBall1;
+  },
+  getShoot() {
+    return this.isShoot;
+  },
+  updateTimes(){
+    this.timesShoot += 1;
+  },
+  times(){
+     return this.timesShoot;
+  },
+  timesReset(){
+    this.timesShoot = 0;
+  },
+  nextLevel(value){
+    this.levelCompleted = value;
+  },
+  getLevel(){
+    return this.levelCompleted;
   }
-  
-   
+};
 
-  function updateRotationToMouse(event) {
-    mouseX = event.clientX - canvas.offsetLeft;
-    mouseY = event.clientY - canvas.offsetTop;
-
-    return {x: mouseX , y: mouseY}
-  } 
-
-
-  function getRandomColor() {
-    const randomIndex = Math.floor(Math.random() * colors.length);
-    return colors[randomIndex];
+export const mapDatas = {
+  setMapData(val){
+      mapData = val;
+  },
+  getMapData(){
+    return mapData;
   }
+}
 
-  function drawHUD(context, score, health) {
-    context.fillStyle = "red";
-    context.font = "20px Arial";
-    context.fillText(`Score: ${score}`, 10, 20);
-    context.fillText(`Health: ${health}`, 10, 40);
-  }
+let firstBall = getRandomColor();
 
-      
+export const nextBullet = {
+  predictBullet: firstBall,
+  setBullet(value){
+    this.predictBullet = value;
+  },
+   getBullet() {
+    return this.predictBullet;
+  },
+}
 
-  let lastTime = 0;
-  function gameLoop(timeStamp) {
-     deltaTime = (timeStamp - lastTime) / 1000;
-   //  gameState.setDeltaTime(deltaTime)
-    // console.log(gameState.getDeltaTime());
-     
+const queue = new BallPrediction();
+const shoot = new Shooter(canvas.width / 2 - 50,canvas.height - 60,100,80,350,imgPlayer);
+const collisionManager = new CollisionManager();
+const map = new Map(context, ballRadius, collisionManager, canvas);
+const inputController = new InputController(canvas, updateRotationToMouse, shoot,queue,getRandomColor,collisionManager,map);
+const drawShoot = new Draw(context,shoot);
+const drawMap = new Draw(context,map,ballRadius,collisionManager);
+const lazy = new Shooter(160, canvas.height - 120, 100, 80, 350, dream);
+let first = new Ball(210, 570, 10, 0, firstBall, 0, 0, map.checkMerge.bind(map));
+const levelManager = new LevelManager(canvas,context);
+const gameManager = new GameManager(canvas, context);
+const gameMenu = new GameMenu(canvas, context);
 
-    lastTime = timeStamp;
-    context.clearRect(0, 0, canvas.width, canvas.height);
+queue.enqueue(firstBall);
 
-    if(firstShoot){
-      first.draw(context);
+// if (!mapLoaded) {
+  map.loadMap();
+//   mapLoaded = true;
+// }
+
+function updateRotationToMouse(event) {
+  mouseX = event.clientX - canvas.offsetLeft;
+  mouseY = event.clientY - canvas.offsetTop;
+
+  return {x: mouseX , y: mouseY}
+} 
+
+function getRandomColor() {
+  const randomIndex = Math.floor(Math.random() * colors.length);
+  return colors[randomIndex];
+}
+
+function drawHUD(context, score, health) {
+  context.fillStyle = "red";
+  context.font = "20px Arial";
+  context.fillText(`Score: ${score}`, 10, 20);
+  context.fillText(`Health: ${health}`, 10, 40);
+}
+
+let lastTime = 0;
+function gameLoop(timeStamp) {
+  deltaTime = (timeStamp - lastTime) / 1000;
+  lastTime = timeStamp;
+
+  context.clearRect(0, 0, canvas.width, canvas.height);
+  context.drawImage(bgImage, 0, 0, canvas.width, canvas.height);
+
+  if (!gameManager.isGameStarted()) {
+    gameState.setShoot(false);
+    gameManager.draw();
+  } else {
+    if (gameState.getLevel()) {
+      levelManager.increaseLevel();
+      levelManager.drawLevel();
+    } else {
+      gameState.setShoot(true);
+      context.drawImage(bgImage, 0, 0, canvas.width, canvas.height);
     }
-     
     drawShoot.drawShooter(shoot);
     drawShoot.drawShooter(lazy);
-    if(gameState.getShoot(true)){
-       drawShoot.drawPrediction(shoot, mouseX, mouseY, canvas, ballRadius);
+    if (firstShoot) {
+      first.draw(context);
     }
-
-    //console.log(map.getBubblesFall());
-    
-    // if(bullets != 0){
-    //   for (const bullet of bullets) {
-    //     bullet.updatePosition(deltaTime,canvas);
-    //     bullet.draw(context);
-    //   }
-    // }
-
-  //  if(this.disconnectBubble != null){
-  //    console.log(this.disconnectBubble);
-  //  }
-    
-    // for( const fall of map.getBubblesFall()){
-    //     fall.updateBallFall(deltaTime);
-    // }
-
-    // if(gameState.getBubblesFall().length != 0){
-    //   // console.log(disconnectBubble);
-    //   for(const fall of disconnectBubble){
-    //     fall.updateFall(deltaTime);
-
-    //   }
-    // }
-    
-    map.shootBullet(deltaTime)
-    map.draw(context)
-    //if(gameState.getFall()){
+    if (gameState.getShoot(true)) {
+      drawShoot.drawPrediction(shoot, mouseX, mouseY, canvas, ballRadius);
+    }
+    map.shootBullet(deltaTime);
+    map.draw(context);
     map.bulletFall(deltaTime);
-    //   gameState.setFall(false)
-    // }
-    
-  //  console.log(gameState.getFall());
-    
-     
+    setTimeout(() => {
+      map.checkWin();
+    }, 1000);
     predictBullet = nextBullet.getBullet();
-    
     if (predictBullet instanceof Ball) {
       predictBullet.draw(context);
       firstShoot = false;
     }
     collisionManager.checkCollisions();
-    requestAnimationFrame(gameLoop);
   }
-  gameLoop();
+
+  requestAnimationFrame(gameLoop);
+}
+gameLoop();

@@ -1,6 +1,6 @@
 [
-[
-    { "type": "bubble", "colorIndex": 1 ,"row": 0, "col": 0},
+  [
+    { "type": "key", "colorIndex": 6 ,"row": 0, "col": 0},
     { "type": "bubble", "colorIndex": 1 ,"row": 0, "col": 1},
     { "type": "bubble", "colorIndex": 1 ,"row": 0, "col": 2},
     { "type": "bubble", "colorIndex": 1 ,"row": 0, "col": 3},
@@ -9,9 +9,10 @@
     { "type": "bubble", "colorIndex": 1 ,"row": 0, "col": 6},
     { "type": "bubble", "colorIndex": 1 ,"row": 0, "col": 7},
     { "type": "bubble", "colorIndex": 1 ,"row": 0, "col": 8},
-    { "type": "bubble", "colorIndex": 1 ,"row": 0, "col": 9}
+    { "type": "key", "colorIndex": 6 ,"row": 0, "col": 9}
    
-  ],
+  ]
+  ,
   [
     { "type": "bubble", "colorIndex": 2 , "row": 1, "col": 1},
     { "type": "bubble", "colorIndex": 2 , "row": 1, "col": 2},
@@ -30,7 +31,7 @@
     { "type": "bubble", "colorIndex": 3 , "row": 2, "col": 3},
     { "type": "bubble", "colorIndex": 3 , "row": 2, "col": 4},
     { "type": "bubble", "colorIndex": 2 , "row": 2, "col": 5},
-    { "type": "bubble", "colorIndex": 3 , "row": 2, "col": 6},
+    { "type": "bubble", "colorIndex": 2 , "row": 2, "col": 6},
     { "type": "bubble", "colorIndex": 3,  "row": 2, "col": 7 },
     { "type": "bubble", "colorIndex": 3 , "row": 2, "col": 8},
     { "type": "key", "colorIndex": 6 ,    "row": 2, "col": 9},

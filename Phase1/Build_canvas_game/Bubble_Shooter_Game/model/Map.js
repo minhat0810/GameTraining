@@ -1,21 +1,29 @@
-import {  gameState, mapDatas } from "../main/index.js";
+import { gameState, mapDatas } from "../main/index.js";
 import { Ball } from "./Ball.js";
 import { CollisionManager } from "../handle/CollisionManager.js";
+import { AudioManager } from "../handle/AudioManager.js";
+import { LevelManager } from "../handle/LevelManager.js";
 
-
+// import {} from ""
 
 export class Map {
   constructor(context, ballRadius, collisionManager, canvas) {
     this.context = context;
     this.ballRadius = ballRadius;
     this.collisionManager = collisionManager;
-    this.colors = ["red", "blue", "green", "yellow", "purple"];
+    this.colors = ["red", "blue", "green", "yellow", "purple", "black"];
     this.balls = [];
     this.bullets = [];
     this.canvas = canvas;
     this.redraw = false;
     this.distance = 5;
     this.disconnect = [];
+    this.quanKey = 0;
+    this.currentLevel = 1;
+    this.maxLevel = 10;
+    this.isLevelCompleted = false;
+    this.transitionAlpha = 0;
+    this.isTransitioning = false;
   }
 
   draw(context) {
@@ -23,35 +31,46 @@ export class Map {
   }
 
   loadMap() {
-    fetch("../assets/levels/level_1.json")
-      .then((response) => response.json()) // Chuyển đổi dữ liệu JSON
+    // this.balls = [];
+    // this.quanKey = 0;
+
+    this.balls.splice(0, this.balls.length);
+    this.balls.length = 0;
+    const levelPath = `../assets/levels/level_${this.currentLevel}.json`;
+    fetch(levelPath)
+      .then((response) => response.json())
       .then((map) => {
         for (let row = 0; row < map.length; row++) {
           for (let col = 0; col < map[row].length; col++) {
-            // console.log(map);
-
             const obj = map[row][col];
-            const offsetX = row % 2 === 0 ? 0 : this.ballRadius; // Dịch ngang cho hàng lẻ
+            const offsetX = row % 2 === 0 ? 0 : this.ballRadius;
             const x = col * this.ballRadius * 2 + this.ballRadius + offsetX;
             const y = row * this.ballRadius * 2 + this.ballRadius;
-            const color = this.colors[obj.colorIndex - 1]; // Lấy màu từ mảng colors
+            const color = this.colors[obj.colorIndex - 1];
 
-            // Vẽ đối tượng tùy theo type
             if (obj.type === "bubble") {
               let ball = new Ball(x, y, this.ballRadius, null, color, 0, 0);
               ball.row = row;
               ball.col = col;
+              // console.log(gameState.getImg());
+              // ball.image = "gameState.getImg()";
+
+              //  ball.image = "../assets/img/red.png";
               this.collisionManager.addCollider(ball.collider);
 
               this.balls.push(ball);
-            } else if (obj.type === "empty") {
-              continue;
+            } else if (obj.type == "key") {
+              let ball = new Ball(x, y, this.ballRadius, null, color, 0, 0);
+              ball.row = row;
+              ball.col = col;
+              ball.isKey = true;
+              ball.type = "key";
+              this.quanKey += 1;
+              this.collisionManager.addCollider(ball.collider);
+              this.balls.push(ball);
             }
           }
         }
-        // this.setMap(data);
-        //  console.log(this.getMap());
-    //    mapDatas.setMapData(map);
       })
       .catch((error) => console.error("Error loading map:", error));
   }
@@ -61,306 +80,376 @@ export class Map {
       if (bl.speed != 0) {
         bl.updatePosition(deltaTime, this.canvas);
         bl.draw(this.context);
-        //console.log(bl);
       }
     });
+  }
+
+  applyGravity(ball) {
+    ball.velocity += this.grativy;
+
+    ball.y += ball.velocity;
+  }
+
+  checkWin() {
+    if (this.quanKey == 0 && !this.isLevelCompleted) {
+      this.balls.forEach((bu) => {
+        bu.updateFall(1);
+        gameState.setShoot(false);
+        let index = this.balls.indexOf(bu);
+        if (bu.y >= this.canvas.height) {
+          this.balls.splice(index, 1);
+          gameState.setShoot(true);
+          if (this.balls.length == 0) {
+            const levelManager = new LevelManager(this.canvas, this.context);
+            // levelManager.level = 3;
+            levelManager.increaseLevel();
+            gameState.nextLevel(true);
+            console.log(levelManager.level);
+            
+          }
+        }
+      });
+
+      if (gameState.getLevel() && this.currentLevel < this.maxLevel) {   
+        
+        // levelManager.drawLevel();
+        this.startLevelTransition();
+      }
+    }
+  }
+
+  startLevelTransition() {
+    if (!this.isTransitioning) {
+      this.isTransitioning = true;
+      this.transitionAlpha = 0;
+      this.fadeOut();
+    }
+  }
+
+  fadeOut() {
+    if (this.transitionAlpha < 1) {
+      this.transitionAlpha += 0.01;
+      this.context.fillStyle = `rgba(0, 0, 0, ${this.transitionAlpha})`;
+      this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
+      requestAnimationFrame(() => this.fadeOut());
+    } else {
+      this.currentLevel += 1;
+      gameState.nextLevel(false);
+      // const levelManager = new LevelManager(this.canvas, this.context);
+      // levelManager.level += 1;
+      this.loadMap();
+      this.fadeIn();
+    }
+  }
+
+  fadeIn() {
+    if (this.transitionAlpha > 0) {
+      this.transitionAlpha -= 0.01;
+      this.context.fillStyle = `rgba(0, 0, 0, ${this.transitionAlpha})`;
+      this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
+      requestAnimationFrame(() => this.fadeIn());
+    } else {
+      this.isTransitioning = false;
+    }
   }
 
   bulletFall(deltaTime) {
-    this.balls.forEach((bl) => {
-      if (bl.isFall) {
-      // console.log(deltaTime); 
-       bl.updateFall(deltaTime); 
-       gameState.setShoot(false);
-       let index = this.balls.indexOf(bl)
+    this.balls.forEach((bu) => {
+      if (bu.isFall) {
+        bu.updateFall(deltaTime);
+        gameState.setShoot(false);
+        let index = this.balls.indexOf(bu);
 
-        if(bl.y >= this.canvas.height){
-         this.balls.splice(index, 1);   
-         gameState.setShoot(true);     
-        }
-       }
-    });
-  }
-
-  checkMerge(row,col,ball
-    //,mapData
-    ,gridRows,gridCols,deviationX,deviationY) {
-      let bubbles = [];
-      let visited = new Set();
-      let disconnect = [];
-
-      let index = this.balls.indexOf(ball);
-      //  console.log(index);
-      this.balls.splice(index);
-
-      let bubble = this.balls.find(
-        (bubble) => bubble.col == col && bubble.row == row + 1
-      );
-
-      let bubbleRight = this.balls.find(
-        (bubble) => bubble.col == col + 1 && bubble.row == row
-      );
-      let bubbleLeft = this.balls.find(
-        (bubble) => bubble.col == col - 1 && bubble.row == row
-      );
-      if( !bubbleLeft && !bubbleRight ){
-      
-        console.log(ball);
-        
-        if(ball.x - 60 <= 0){
-          ball.col += 1;
-          ball.row -= 1;
-          ball.y = ball.y - 40;
-          if(ball.row % 2 != 0){
-            ball.x = ball.col * this.ballRadius * 2 + this.ballRadius * 2;
-          }else {
-             ball.x = ball.col * this.ballRadius * 2 + this.ballRadius;
+        if (bu.y >= this.canvas.height) {
+          this.balls.splice(index, 1);
+          gameState.setShoot(true);
+          // this.checkWin(bl);
+          if (bu.type == "key") {
+            this.quanKey -= 1;
           }
-          this.balls.push(ball)
-          //console.log(ball);
-        } 
-
-         if (ball.x + 40 > this.canvas.width) {
-            console.log("hi");
-          ball.col -= 1;
-          ball.row -= 1;
-          ball.y = ball.y - 40;
-          if (ball.row % 2 != 0) {
-            ball.x = ball.col * this.ballRadius * 2 + this.ballRadius * 2;
-          } else {
-            ball.x = ball.col * this.ballRadius * 2 + this.ballRadius;
-          }
-           this.balls.push(ball);
-        }
-
-        if(ball.x - 60 > 0 && ball.x + 40 < this.canvas.width){
-          console.log(ball);
-          ball.row -= 1;
-          ball.y = ball.y - 40;
-          ball.col += 1;
-          if (ball.row % 2 != 0) {
-            ball.x = ball.col * this.ballRadius * 2 + this.ballRadius * 2 ;
-          } else {
-            ball.x = ball.col * this.ballRadius * 2 + this.ballRadius ;
-          }
-          this.balls.push(ball);
         }
       }
-     // console.log(this.balls);
-      
-      
-      if(bubbleLeft && bubbleRight == undefined
-        // || !bubbleLeft && !bubbleRight
-        ){
-        if(ball.x - deviationX + 40 + this.ballRadius> this.canvas.width){
-          if(ball.row %2 == 0){
-            // ball.x = ball.x - deviationX - 20;
-            //if(ball.)
-            ball.x = ball.col * this.ballRadius*2 + this.ballRadius;
-          } else{
-            ball.x = ball.x - deviationX + 20; 
-          }    
+    });
+    //  this.checkKey();
+    // console.log(this.quanKey);
+  }
+
+  checkMerge(
+    row,
+    col,
+    ball,
+    //,mapData
+    gridRows,
+    gridCols,
+    deviationX,
+    deviationY,
+    other
+  ) {
+    let bubbles = [];
+    let visited = new Set();
+    let disconnect = [];
+
+    let index = this.balls.indexOf(ball);
+    //  console.log(index);
+    this.balls.splice(index);
+
+    let bubble = this.balls.find(
+      (bubble) => bubble.col == col && bubble.row == row + 1
+    );
+
+    let bubbleRight = this.balls.find(
+      (bubble) => bubble.col == col + 1 && bubble.row == row
+    );
+    let bubbleLeft = this.balls.find(
+      (bubble) => bubble.col == col - 1 && bubble.row == row
+    );
+    if (!bubbleLeft && !bubbleRight) {
+      console.log(ball);
+
+      if (ball.x - 60 <= 0) {
+        ball.col += 1;
+        ball.row -= 1;
+        ball.y = ball.y - 40;
+        if (ball.row % 2 != 0) {
+          ball.x = ball.col * this.ballRadius * 2 + this.ballRadius * 2;
         } else {
-          ball.y = ball.y - 40;
-          ball.x = ball.x - deviationX + 40;
-          ball.col += 1;
-          ball.row -= 1;;
+          ball.x = ball.col * this.ballRadius * 2 + this.ballRadius;
+        }
+        this.balls.push(ball);
+      } else if (ball.x + 60 >= this.canvas.width) {
+        console.log("hi");
+        ball.col -= 1;
+        ball.row -= 1;
+        ball.y = ball.y - 40;
+        if (ball.row % 2 != 0) {
+          ball.x = ball.col * this.ballRadius * 2 + this.ballRadius * 2;
+        } else {
+          ball.x = ball.col * this.ballRadius * 2 + this.ballRadius;
+        }
+        this.balls.push(ball);
+      } else {
+        ball.row -= 1;
+        ball.y = ball.y - 40;
+        ball.col += 1;
+        if (ball.row % 2 != 0) {
+          ball.x = ball.col * this.ballRadius * 2 + this.ballRadius * 2;
+        } else {
+          ball.x = ball.col * this.ballRadius * 2 + this.ballRadius;
         }
 
         this.balls.push(ball);
+      }
+    } else if (
+      bubbleLeft &&
+      bubbleRight == undefined
+      // || !bubbleLeft && !bubbleRight
+    ) {
+      console.log("L1R0");
 
-      } else if (bubbleRight && bubbleLeft == undefined 
-        //|| !bubbleLeft && !bubbleRight
-
-      ) {
-
-         if(ball.x - deviationX - 40 <= 0){
-          if(ball.row %2 == 0){
-            //ball.x = ball.x - deviationX - 20;
-            // console.log("hi3");
-            // console.log(ball);
-            // if(ball.col < 0 ){
-            //   ball.col = 0;
-            //   ball.x = ball.col * this.ballRadius + this.ballRadius*2;
-            // } else{
-              ball.x = ball.x - deviationX - 20;
-          //  }
-          } else{
-            ball.x = ball.x - deviationX + 20; 
-
-          }    
+      if (ball.x - deviationX + 40 + this.ballRadius > this.canvas.width) {
+        if (ball.row % 2 == 0) {
+          console.log("5");
+          ball.x = ball.col * this.ballRadius * 2 + this.ballRadius;
         } else {
-          ball.y = ball.y - 40;
-          ball.x = ball.x - deviationX - 40;
-          ball.col -= 1;
-          ball.row -= 1;
-        
-         }
-         this.balls.push(ball);
-      } else if( bubbleLeft && bubbleRight){
-          if (bubble != undefined) {
-            if (ball.row % 2 == 0) {
-              ball.x = ball.x - deviationX + 20;
-              ball.col += 1;
-              ball.row +=1;
-             // console.log(ball);
-              
-            } else {
-              ball.x = ball.x - deviationX - 20;
-              ball.col -= 1;
-              ball.row += 1;
-            }
+          if (bubble) {
+            ball.col -= 1;
+            ball.x = ball.col * this.ballRadius * 2 + this.ballRadius * 2;
+            console.log("L1R0-odd-left");
           } else {
-              if (ball.row % 2 == 0) {
-                console.log("hi");
-                
-                ball.x = ball.x - deviationX - 20;
-              } else {
-                ball.x = ball.x - deviationX + 20;
-              }
+            ball.x = ball.col * this.ballRadius * 2 + this.ballRadius * 2;
           }
-          this.balls.push(ball);
-         // bubbles.push(ball);
+        }
+      } else {
+        ball.y = ball.y - 40;
+        ball.x = ball.x - deviationX + 40;
+        ball.col += 1;
+        ball.row -= 1;
       }
 
-      this.findCluster(
-        row,
-        col,
-        bubbles,
-        visited,
-        ball,
-        gridRows,
-        gridCols
-      );
+      this.balls.push(ball);
+    } else if (
+      bubbleRight &&
+      bubbleLeft == undefined
+      //|| !bubbleLeft && !bubbleRight
+    ) {
+      console.log("L0R1");
 
-      console.log(ball);
-      
-       
-      if (bubbles.length >= 3) {
-        bubbles.forEach((bu) => {
-          let index = this.balls.indexOf(bu);
-
-          let indexBullet = this.bullets.indexOf(bu);
-
-          this.balls.splice(index, 1);
-          this.collisionManager.removeCollider(bu.collider);
-          this.findDisconnectBubbles(
-            bu.row,
-            bu.col,
-            disconnect
-          );
-        });
+      if (ball.x - deviationX - 40 <= 0) {
+        if (ball.row % 2 == 0) {
+          ball.x = ball.x - deviationX - 20;
+        } else {
+          console.log("L0R1-odd");
+          ball.x = ball.x - deviationX + 20;
+        }
+      } else {
+        ball.y = ball.y - 40;
+        ball.x = ball.x - deviationX - 40;
+        ball.col -= 1;
+        ball.row -= 1;
       }
+      this.balls.push(ball);
+    } else if (bubbleLeft && bubbleRight) {
+      if (bubble != undefined) {
+        if (ball.row % 2 == 0) {
+          console.log("1");
 
-       //  console.log(gameState.times());
-        //  if (gameState.times() == 3) {
-        //    this.balls.forEach((bl) => {
-        //       // console.log(bl.x);
-        //        bl.y += 40;
-        //        bl.row += 1;
-        //    //   console.log(bl.row);
-              
-        //       gameState.timesReset() 
-        //    });
-        //    for(let col = 0; col <10; col++){
-        //      const x = col * this.ballRadius * 2 + this.ballRadius; 
-        //      const y = 20;
-        //      const color = this.colors[Math.floor(Math.random()*  this.colors.length)]
-        //      let newBall = new Ball(x, y, this.ballRadius, null, color , 0, 0);
-        //      newBall.col = col;
-        //      newBall.row = 0;
-        //      this.collisionManager.addCollider(newBall.collider);
-        //      this.balls.push(newBall);
-        //      //console.log(this.balls);
-             
-        //    }
-        //   //  this.balls.forEach(bl => {
-        //   //   if(bl.row % 2 == 0){
-        //   //     bl.x -= 20;
-        //   //   } else{
-        //   //     bl.x += 20;
-        //   //   }
-        //   //  })
-        //  }
-      // console.log(ball);
+          ball.x = ball.x - deviationX + 20;
+          ball.col += 1;
+          ball.row += 1;
+        } else {
+          console.log("2");
+
+          ball.x = ball.x - deviationX - 20;
+          ball.col -= 1;
+          ball.row += 1;
+        }
+      } else {
+        if (ball.row % 2 == 0) {
+          console.log("3");
+
+          ball.x = ball.x - deviationX - 20;
+        } else {
+          ball.x = ball.x - deviationX + 20;
+        }
+      }
+      this.balls.push(ball);
     }
 
-  findCluster(row, col, bubbles, visited, ball, gridRows, gridCols
-    ) {
+    this.findCluster(row, col, bubbles, visited, ball, gridRows, gridCols, other);
+
+    if (bubbles.length >= 3) {
+      bubbles.forEach((bu) => {
+        const sound = new AudioManager();
+        sound.loadSound("broken", "../assets/sound/broken2.wav");
+        sound.playSound("broken");
+        let index = this.balls.indexOf(bu);
+        this.balls.splice(index, 1);
+        this.collisionManager.removeCollider(bu.collider);
+        if (bu.type == "key") {
+          this.quanKey -= 1;
+        }
+        this.findDisconnectBubbles(0, 0);
+      });
+    }
+  }
+
+  findCluster(row, col, bubbles, visited, ball, gridRows, gridCols, other) {
     const key = `${row},${col}`;
 
-    if (
-      row < 0 ||
-      // row >= gridRows ||
-      col < 0 ||
-      // col >= gridCols ||
-      visited.has(key)
-    ) {
+    if (row < 0 || col < 0 || visited.has(key)) {
       return;
     }
 
     let currentBubble = this.balls.find((b) => b.row === row && b.col === col);
+    // console.log(other.ball.row);
+    
 
     try {
-      if (currentBubble.color !== ball.color) {
-             
+      if (currentBubble.color !== ball.color && !currentBubble.isKey) {
         return;
       }
 
       visited.add(key);
+
       bubbles.push(currentBubble);
       const directions = [
-        [-1, 0], // Trên
-        [1, 0], // Dưới
-        [0, -1], // Trái
-        [0, 1], // Phải
-        // [-1,-1],
-        // [-1,1]
+        [-1, 0],  // Trên
+        [1, 0],   // Dưới
+        [0, -1],  // Trái
+        [0, 1],   // Phải
       ];
 
-      for (const [dx, dy] of directions) {
-        this.findCluster(
-          row + dy,
-          col + dx,
-          bubbles,
-          visited,
-          ball,
-          gridRows,
-          gridCols,
+      // Thêm các hướng chéo dựa vào hàng chẵn/lẻ
+      if (row % 2 === 0) {
+        // Hàng chẵn
+        directions.push(
+          [-1, -1], // Chéo trái trên
+          [-1, 0],  // Chéo phải trên
+          [1, -1],  // Chéo trái dưới
+          [1, 0]    // Chéo phải dưới
+        );
+      } else {
+        // Hàng lẻ
+        directions.push(
+          [-1, 0],  // Chéo trái trên
+          [-1, 1],  // Chéo phải trên
+          [1, 0],   // Chéo trái dưới
+          [1, 1]    // Chéo phải dưới
         );
       }
+
+      for (const [dy, dx] of directions) {
+        const newRow = row + dy;
+        const newCol = col + dx;
+        
+        // Kiểm tra biên
+        if (newRow >= 0 && newCol >= 0) {
+          this.findCluster(
+            newRow,
+            newCol,
+            bubbles,
+            visited,
+            ball,
+            gridRows,
+            gridCols,
+            other
+          );
+        }
+      }
     } catch (error) {}
   }
 
-  findDisconnectBubbles(
-     row, col, disconnect) {
-    if (row >= 20  ||
-       row < 0) return;
+  clusterFall(ball, visited, connectedBubbles) {
+    let stack = [ball];
+    const directions = [
+      [-1, 0],
+      [1, 0],
+      [0, -1],
+      [0, 1],
+      [-1, -1],
+      [1, 1],
+    ];
 
-    try {
-      let disconnectBubble = this.balls.find(
-        (b) => b.row === row+1 && b.col === col
-      );
-     
-      
+    while (stack.length > 0) {
+      let current = stack.pop();
+      let key = `${current.row},${current.col}`;
 
-      if (disconnectBubble != undefined) {
-        let index = this.balls.indexOf(disconnectBubble);
+      if (visited.has(key)) continue;
 
-      //   console.log(disconnectBubble);
+      visited.add(key);
+      connectedBubbles.push(current);
 
-        disconnectBubble.isFall = true;
+      for (const [dx, dy] of directions) {
+        let neighbor = this.balls.find(
+          (b) => b.row === current.row + dy && b.col === current.col + dx
+        );
+        if (neighbor && !visited.has(`${neighbor.row},${neighbor.col}`)) {
+          stack.push(neighbor);
+        }
       }
-      // this.balls.forEach(bl => {
-      //   // console.log(bl);
-        
-      // })
+    }
+  }
 
-    } catch (error) {}
+  findDisconnectBubbles(row, col) {
+    if (row >= 20 || row < 0) return;
 
-    return this.findDisconnectBubbles(
-       row + 1, col);
+    let visited = new Set();
+    let connectedBubbles = [];
+
+    for (let ball of this.balls) {
+      if (ball.row === 0) {
+        this.clusterFall(ball, visited, connectedBubbles);
+      }
+    }
+
+    let disconnectedBubbles = this.balls.filter(
+      (ball) => !visited.has(`${ball.row},${ball.col}`)
+    );
+
+    disconnectedBubbles.forEach((ball) => {
+      ball.isFall = true;
+    });
+
+    // return this.findDisconnectBubbles(row + 1, col);
   }
 }
-
-  

@@ -3,6 +3,7 @@ import { gameState } from "../main/index.js";
 import { nextBullet } from "../main/index.js";
 import { Shooter } from "../model/Shooter.js";
 import { CollisionManager } from "./CollisionManager.js";
+import { AudioManager } from "./AudioManager.js";
 
 export class InputController {
   constructor(canvas, updateRotationToMouse,shoot,queue,getRandomColor,collisionManager,map) {
@@ -30,14 +31,16 @@ export class InputController {
 
     window.addEventListener("click", (e) => {
     if (gameState.getShoot()) { 
+        const sound = new AudioManager();
+        sound.loadSound('shoot', '../assets/sound/shoot2.wav');
+        sound.playSound('shoot')
         this.shooting = this.queue.dequeue();
         const nextBall = this.getRandomColor();
         this.queue.enqueue(nextBall);
 
-        const predictBullet = new Ball(280, 610, 10, 0, queue.front(), 0, 0, () => console.log(123141423));
+        const predictBullet = new Ball(210, 570, 10, 0, queue.front(), 0, 0, () => console.log(123141423));
         nextBullet.setBullet(predictBullet); 
 
-        // const bullet = this.shootBullet(this.shooting);
         this.shootBullet(this.shooting,shoot,canvas,this.ballRadius,e);
         gameState.setShoot(false); 
       }
@@ -59,7 +62,7 @@ export class InputController {
   shootBullet(color,shoot,canvas,ballRadius,event) {
     const angle = shoot.calculateAngleToMouse(event.clientX - canvas.offsetLeft,event.clientY - canvas.offsetTop); 
 
-    let bullet = new Ball(canvas.width / 2,canvas.height - 60,20,null,color,1000,angle,this.map.checkMerge.bind(this.map));
+    let bullet = new Ball(canvas.width / 2,canvas.height - 60,17.5,null,color,1000,angle,this.map.checkMerge.bind(this.map));
     this.collisionManager.addCollider(bullet.collider);
     gameState.updateTimes();
    // console.log(gameState.times());
