@@ -105,13 +105,11 @@ export class Map {
             levelManager.increaseLevel();
             gameState.nextLevel(true);
             console.log(levelManager.level);
-            
           }
         }
       });
 
-      if (gameState.getLevel() && this.currentLevel < this.maxLevel) {   
-        
+      if (gameState.getLevel() && this.currentLevel < this.maxLevel) {
         // levelManager.drawLevel();
         this.startLevelTransition();
       }
@@ -128,7 +126,7 @@ export class Map {
 
   fadeOut() {
     if (this.transitionAlpha < 1) {
-      this.transitionAlpha += 0.01;
+      this.transitionAlpha += 0.007;
       this.context.fillStyle = `rgba(0, 0, 0, ${this.transitionAlpha})`;
       this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
       requestAnimationFrame(() => this.fadeOut());
@@ -144,7 +142,7 @@ export class Map {
 
   fadeIn() {
     if (this.transitionAlpha > 0) {
-      this.transitionAlpha -= 0.01;
+      this.transitionAlpha -= 0.007;
       this.context.fillStyle = `rgba(0, 0, 0, ${this.transitionAlpha})`;
       this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
       requestAnimationFrame(() => this.fadeIn());
@@ -203,10 +201,41 @@ export class Map {
     let bubbleLeft = this.balls.find(
       (bubble) => bubble.col == col - 1 && bubble.row == row
     );
+    this.checkPosition(bubbleLeft,bubbleRight,ball,bubble,deviationX,deviationY)
+
+    this.findCluster(
+      row,
+      col,
+      bubbles,
+      visited,
+      ball,
+      gridRows,
+      gridCols,
+      other
+    );
+
+    if (bubbles.length >= 3) {
+      bubbles.forEach((bu) => {
+        const sound = new AudioManager();
+        sound.loadSound("broken", "../assets/sound/broken2.wav");
+        sound.playSound("broken");
+        let index = this.balls.indexOf(bu);
+        bu.isFall = true;
+        this.balls.splice(index, 1);
+        this.collisionManager.removeCollider(bu.collider);
+        if (bu.type == "key") {
+          this.quanKey -= 1;
+        }
+        this.findDisconnectBubbles(0, 0);
+      });
+    }
+  }
+
+  checkPosition(bubbleLeft,bubbleRight,ball,bubble,deviationX,deviationY) {
     if (!bubbleLeft && !bubbleRight) {
       console.log(ball);
 
-      if (ball.x - 60 <= 0) {
+      if (ball.x - 70 <= 0) {
         ball.col += 1;
         ball.row -= 1;
         ball.y = ball.y - 40;
@@ -216,7 +245,7 @@ export class Map {
           ball.x = ball.col * this.ballRadius * 2 + this.ballRadius;
         }
         this.balls.push(ball);
-      } else if (ball.x + 60 >= this.canvas.width) {
+      } else if (ball.x + 80 >= this.canvas.width) {
         console.log("hi");
         ball.col -= 1;
         ball.row -= 1;
@@ -314,23 +343,6 @@ export class Map {
       }
       this.balls.push(ball);
     }
-
-    this.findCluster(row, col, bubbles, visited, ball, gridRows, gridCols, other);
-
-    if (bubbles.length >= 3) {
-      bubbles.forEach((bu) => {
-        const sound = new AudioManager();
-        sound.loadSound("broken", "../assets/sound/broken2.wav");
-        sound.playSound("broken");
-        let index = this.balls.indexOf(bu);
-        this.balls.splice(index, 1);
-        this.collisionManager.removeCollider(bu.collider);
-        if (bu.type == "key") {
-          this.quanKey -= 1;
-        }
-        this.findDisconnectBubbles(0, 0);
-      });
-    }
   }
 
   findCluster(row, col, bubbles, visited, ball, gridRows, gridCols, other) {
@@ -342,7 +354,6 @@ export class Map {
 
     let currentBubble = this.balls.find((b) => b.row === row && b.col === col);
     // console.log(other.ball.row);
-    
 
     try {
       if (currentBubble.color !== ball.color && !currentBubble.isKey) {
@@ -353,35 +364,33 @@ export class Map {
 
       bubbles.push(currentBubble);
       const directions = [
-        [-1, 0],  // Trên
-        [1, 0],   // Dưới
-        [0, -1],  // Trái
-        [0, 1],   // Phải
+        [-1, 0], // Trên
+        [1, 0], // Dưới
+        [0, -1], // Trái
+        [0, 1], // Phải
       ];
 
-      // Thêm các hướng chéo dựa vào hàng chẵn/lẻ
       if (row % 2 === 0) {
-        // Hàng chẵn
         directions.push(
           [-1, -1], // Chéo trái trên
-          [-1, 0],  // Chéo phải trên
-          [1, -1],  // Chéo trái dưới
-          [1, 0]    // Chéo phải dưới
+          [-1, 0], // Chéo phải trên
+          [1, -1], // Chéo trái dưới
+          [1, 0] // Chéo phải dưới
         );
       } else {
         // Hàng lẻ
         directions.push(
-          [-1, 0],  // Chéo trái trên
-          [-1, 1],  // Chéo phải trên
-          [1, 0],   // Chéo trái dưới
-          [1, 1]    // Chéo phải dưới
+          [-1, 0], // Chéo trái trên
+          [-1, 1], // Chéo phải trên
+          [1, 0], // Chéo trái dưới
+          [1, 1] // Chéo phải dưới
         );
       }
 
       for (const [dy, dx] of directions) {
         const newRow = row + dy;
         const newCol = col + dx;
-        
+
         // Kiểm tra biên
         if (newRow >= 0 && newCol >= 0) {
           this.findCluster(
@@ -406,8 +415,8 @@ export class Map {
       [1, 0],
       [0, -1],
       [0, 1],
-      [-1, -1],
-      [1, 1],
+      // [-1, -1],
+     // [1, 1],
     ];
 
     while (stack.length > 0) {

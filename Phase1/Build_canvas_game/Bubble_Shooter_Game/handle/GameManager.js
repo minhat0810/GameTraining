@@ -1,3 +1,5 @@
+import { gameState } from "../main/index.js";
+
 export class GameManager {
   constructor(canvas, context) {
     this.canvas = canvas;
@@ -35,22 +37,52 @@ export class GameManager {
     this.isVisible = true;
     this.gameStarted = false;
     this.setupEventListeners();
+    this.sShoot = false;
+    this.isFall = false;
+    this.timesShoot = 0;
+    this.levelCompleted =  false;
   }
+    
+      setShoot(value) {
+        this.isShoot = value;
+      }
+      getImg(){
+        return imgBall1;
+      }
+      getShoot() {
+        return this.isShoot;
+      }
+      updateTimes(){
+        this.timesShoot += 1;
+      }
+      times(){
+         return this.timesShoot;
+      }
+      timesReset(){
+        this.timesShoot = 0;
+      }
+      nextLevel(value){
+        this.levelCompleted = value;
+      }
+      getLevel(){
+        return this.levelCompleted;
+      }
+  
 
   setupEventListeners() {
-   // this.canvas.addEventListener("mousemove", (e) => this.handleMouseMove(e));
+    this.canvas.addEventListener("mousemove", (e) => this.handleMouseMove(e));
     this.canvas.addEventListener("click", (e) => this.handleClick(e));
   }
 
-  // handleMouseMove(event) {
-  //   const rect = this.canvas.getBoundingClientRect();
-  //   const mouseX = event.clientX - rect.left;
-  //   const mouseY = event.clientY - rect.top;
+  handleMouseMove(event) {
+    const rect = this.canvas.getBoundingClientRect();
+    const mouseX = event.clientX - rect.left;
+    const mouseY = event.clientY - rect.top;
 
-  //   this.buttons.forEach((button) => {
-  //     button.hovered = this.isPointInButton(mouseX, mouseY, button);
-  //   });
-  // }
+    this.buttons.forEach((button) => {
+      button.hovered = this.isPointInButton(mouseX, mouseY, button);
+    });
+  }
 
   handleClick(event) {
     if (!this.isVisible) return;
@@ -83,7 +115,7 @@ export class GameManager {
     this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
     this.context.fillStyle = "#fff";
-    this.context.font = "bold 48px Arial";
+    this.context.font = "bold 48px robo";
     this.context.textAlign = "center";
     this.context.fillText("Pika Shooter", this.canvas.width / 2, 100);
 
@@ -97,12 +129,12 @@ export class GameManager {
         button.y - button.height / 2,
         button.width,
         button.height,
-        10
+        20
       );
       this.context.fill();
 
-      this.context.fillStyle = "#fff";
-      this.context.font = "24px Arial";
+      this.context.fillStyle = "#000";
+      this.context.font = "24px robo";
       this.context.textAlign = "center";
       this.context.textBaseline = "middle";
       this.context.fillText(button.text, button.x, button.y);
@@ -112,7 +144,9 @@ export class GameManager {
   startGame() {
     this.isVisible = false;
     this.gameStarted = true;
-
+    setTimeout(()=>{
+      gameState.setShoot(true);
+    },100);
   }
 
   openSettings() {

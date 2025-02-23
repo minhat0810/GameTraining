@@ -23,13 +23,17 @@ export class LevelManager {
     this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
     this.context.fillStyle = "#fff";
-    this.context.font = "40px Arial";
+    this.context.font = "40px Robo";
     this.context.textAlign = "center";
     this.context.fillText(
       `Level completed`,
       this.canvas.width / 2,
       this.canvas.height / 2
     );
+    gameState.setShoot(false);
+    setTimeout(()=>{
+          gameState.setShoot(true);
+    },1000);
   }
 //   startLevelTransition() {
 //     if (!this.isTransitioning) {

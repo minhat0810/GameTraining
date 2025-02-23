@@ -1,4 +1,4 @@
-import { gameState } from "../main/index.js";
+
 export class Collider {
   constructor(x, y, onCollide) {
     this.x = x;

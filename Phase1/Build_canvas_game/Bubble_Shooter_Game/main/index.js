@@ -6,8 +6,9 @@ import { Ball } from "../model/Ball.js";
 import { CollisionManager } from "../handle/CollisionManager.js"
 import { Map } from "../model/Map.js";
 import { LevelManager } from "../handle/LevelManager.js";
-import { GameMenu } from "../model/GameMenu.js";
+// import { GameMenu } from "../model/GameMenu.js";
 import { GameManager } from "../handle/GameManager.js";
+import { AudioManager } from "../handle/AudioManager.js";
 
 const canvas = document.getElementById("gameCanvas");
 const context = canvas.getContext("2d");
@@ -45,7 +46,7 @@ bgImage.src = "../assets/img/bgr.jpg";
 // };
 
 export const gameState = {
-  isShoot: true,
+  isShoot: false,
   isFall: false,
   timesShoot: 0,
   levelCompleted: false,
@@ -107,7 +108,7 @@ const lazy = new Shooter(160, canvas.height - 120, 100, 80, 350, dream);
 let first = new Ball(210, 570, 10, 0, firstBall, 0, 0, map.checkMerge.bind(map));
 const levelManager = new LevelManager(canvas,context);
 const gameManager = new GameManager(canvas, context);
-const gameMenu = new GameMenu(canvas, context);
+//const gameMenu = new GameMenu(canvas, context);
 
 queue.enqueue(firstBall);
 
@@ -144,24 +145,24 @@ function gameLoop(timeStamp) {
   context.drawImage(bgImage, 0, 0, canvas.width, canvas.height);
 
   if (!gameManager.isGameStarted()) {
-    gameState.setShoot(false);
     gameManager.draw();
   } else {
     if (gameState.getLevel()) {
-      levelManager.increaseLevel();
-      levelManager.drawLevel();
+       levelManager.increaseLevel();
+       levelManager.drawLevel();
     } else {
-      gameState.setShoot(true);
       context.drawImage(bgImage, 0, 0, canvas.width, canvas.height);
     }
-    drawShoot.drawShooter(shoot);
+     drawShoot.drawShooter(shoot);
+    if (gameState.getShoot(true)) {
+      drawShoot.drawPrediction(shoot, mouseX, mouseY, canvas, ballRadius);
+    }
+   
     drawShoot.drawShooter(lazy);
     if (firstShoot) {
       first.draw(context);
     }
-    if (gameState.getShoot(true)) {
-      drawShoot.drawPrediction(shoot, mouseX, mouseY, canvas, ballRadius);
-    }
+    
     map.shootBullet(deltaTime);
     map.draw(context);
     map.bulletFall(deltaTime);
@@ -173,7 +174,14 @@ function gameLoop(timeStamp) {
       predictBullet.draw(context);
       firstShoot = false;
     }
+    canvas.addEventListener("press", (e)=>{
+
+    })
     collisionManager.checkCollisions();
+    // if(levelManager.level > 2){
+    //   gameManager.gameStarted = false;
+    //   gameManager.show()
+    // }
   }
 
   requestAnimationFrame(gameLoop);

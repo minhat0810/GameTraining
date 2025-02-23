@@ -88,7 +88,7 @@ export class Shooter {
     context.lineWidth = 2;
     context.setLineDash([5, 5]); // Đường nét đứt
     context.stroke();
-    context.restore();
+   // context.restore();
   }
 
   calculateAngleToMouse(mouseX,mouseY) {
