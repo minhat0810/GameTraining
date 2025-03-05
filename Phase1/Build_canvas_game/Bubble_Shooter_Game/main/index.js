@@ -214,10 +214,10 @@ function gameLoop(timeStamp) {
         predictBullet.draw(context);
         firstShoot = false;
       }
-      console.log(levelManager.level);
+      //console.log(levelManager.level);
       
       if(levelManager.level > 3){
-        
+      //  gameManager.gameStarted = false;
         gameManager.drawEndGame()
       }
       

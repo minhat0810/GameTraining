@@ -69,9 +69,21 @@ export class Ball {
     if (this.x + this.radius > canvas.width || this.x - this.radius < 0) {
       this.angle = Math.PI - this.angle;
     }
-    if (this.y < 0) {
+    if (this.y <= 10) {
       this.speed = 0;
-      this.y = this.y + 2;
+      this.radius = 20;
+      this.y = 20;
+
+      let ballRadius = 20;
+      const row = 0;
+      const isOdd = row % 2 !== 0;
+      const col = Math.floor(
+        (this.x - ballRadius - (isOdd ? ballRadius : 0)) / (ballRadius * 2)
+      );
+      this.row = row;
+      this.col = col;
+      this.x = col * (ballRadius * 2) + ballRadius + (isOdd ? ballRadius : 0);
+
       gameState.setShoot(true);
     }
 

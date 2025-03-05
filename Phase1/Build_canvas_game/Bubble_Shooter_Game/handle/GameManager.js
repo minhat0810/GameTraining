@@ -170,11 +170,9 @@ export class GameManager {
   }
 
   drawEndGame(score) {
-    // Vẽ background mờ
     this.context.fillStyle = "rgba(0, 0, 0, 0.8)";
     this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-    // Vẽ tiêu đề "Game Over"
     this.context.fillStyle = "#fff";
     this.context.font = "bold 48px robo";
     this.context.textAlign = "center";
@@ -184,7 +182,7 @@ export class GameManager {
     // this.context.font = "32px robo";
     // this.context.fillText(`Score: ${score}`, this.canvas.width / 2, 180);
 
-    // Tạo các nút cho màn hình end game
+   
     const endGameButtons = [
       {
         text: "Play Again",
@@ -206,9 +204,7 @@ export class GameManager {
       }
     ];
 
-    // Vẽ các nút
     endGameButtons.forEach((button) => {
-      // Vẽ background nút
       this.context.fillStyle = button.hovered ? "#4CAF50" : "#2E7D32";
       this.context.beginPath();
       this.context.roundRect(
@@ -220,7 +216,6 @@ export class GameManager {
       );
       this.context.fill();
 
-      // Vẽ text nút
       this.context.fillStyle = "#fff";
       this.context.font = "24px robo";
       this.context.textAlign = "center";
