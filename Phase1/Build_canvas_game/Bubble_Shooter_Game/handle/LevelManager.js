@@ -16,8 +16,9 @@ export class LevelManager {
     this.level += 1;
     return
   }
-
-  drawLevel() {
+  endLevel() {
+   // console.log("j");
+    
     this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.context.fillStyle = `rgba(0, 0, 0, ${this.opacity})`;
     this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
@@ -34,6 +35,24 @@ export class LevelManager {
     setTimeout(()=>{
           gameState.setShoot(true);
     },1000);
+  }
+
+  drawLevel(lvl){
+    // console.log(this.level);
+    // this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+   //  this.context.fillStyle = `rgba(0, 0, 0, ${this.opacity})`;
+    // this.context.fillRect(0, 0, 100, 50);
+
+     this.context.fillStyle = "#fff";
+     this.context.font = "35px Robo";
+     this.context.textAlign = "center";
+     this.context.fillText(
+       `Level ${lvl}`,
+       this.canvas.width / 2,
+       25
+     );
+     this.level = lvl;
+     return this.level;
   }
 //   startLevelTransition() {
 //     if (!this.isTransitioning) {

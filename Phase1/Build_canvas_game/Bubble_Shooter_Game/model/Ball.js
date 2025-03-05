@@ -28,7 +28,7 @@ export class Ball {
     this.isKey = false;
     this.type = type;
     this.velocity = 0;
-    this.grativy = 0.2;
+    this.grativy = 0.1;
     if (imageSrc) {
       this.image = new Image();
       this.image.src = imageSrc;
@@ -41,11 +41,13 @@ export class Ball {
 
 
   draw(context) {
+    // console.log(this.image);
+    
     if (this.image && this.image.complete) {
       context.drawImage(
         this.image,
         this.x - this.radius,
-        this.y + this.radius,
+        this.y + this.radius+10,
         this.radius * 2,
         this.radius * 2
       );
@@ -62,7 +64,7 @@ export class Ball {
 
   updatePosition(deltaTime, canvas) {
     this.x += Math.cos(this.angle) * this.speed * deltaTime;
-    this.y += Math.sin(this.angle) * this.speed * deltaTime; // Di chuyển theo hướng chuột
+    this.y += Math.sin(this.angle) * this.speed * deltaTime;
     
     if (this.x + this.radius > canvas.width || this.x - this.radius < 0) {
       this.angle = Math.PI - this.angle;
@@ -110,15 +112,9 @@ export class Ball {
 
   onCollision(otherCollider) {
     let ballRadius = 20;
-    //console.log(this.bubbles);
-//      console.log(otherCollider);
-      
     gameState.setShoot(true);
-    //const list = bubble.getListBubble();
     this.speed = 0;
-    //this.color === other.color &&
     if (this.collider.isColliding && otherCollider.isColliding) {
-      // console.log(mapData);
       let deviationX = this.x - otherCollider.x;
       let deviationY = otherCollider.y + 40;
       this.y = deviationY;
@@ -136,9 +132,7 @@ export class Ball {
       this.row = row+1;
       this.col = col;
       this.radius = 20;
-      //console.log(otherCollider);
       
-    
       this.onCollideCorrectColor?.(
         row,
         col,

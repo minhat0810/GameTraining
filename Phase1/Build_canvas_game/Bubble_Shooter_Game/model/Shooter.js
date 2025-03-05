@@ -39,14 +39,17 @@ export class Shooter {
     this.x = Math.max(0, Math.min(canvas.width - this.width, this.x));
   }
   calculatePrediction(mouseX,mouseY,canvas,ballRadius) {
-    const maxDistance = 500; // Tổng khoảng cách đường bắn dự đoán
-    const points = []; // Danh sách các điểm của đường đi
+    const maxDistance = 500; 
+    const points = []; 
 
-    let currentX = this.x + this.width / 2; // Điểm hiện tại (Shooter)
+    let currentX = this.x + this.width / 2; 
     let currentY = this.y;
+    
 
-    let dx = mouseX - currentX; // Hướng di chuyển ban đầu
+    let dx = mouseX - currentX; 
     let dy = mouseY - currentY;
+    
+    
 
     const angle = Math.atan2(dy, dx);
 
@@ -54,22 +57,20 @@ export class Shooter {
     dy = Math.sin(angle);
 
     let distanceTraveled = 0;
-
-    // Tính toán điểm va chạm và phản xạ
     while (distanceTraveled < maxDistance && currentY < canvas.height) {
       if (
         currentX + dx < ballRadius ||
         currentX + dx > canvas.width - ballRadius
       ) {
-        dx = -dx; // Đảo ngược hướng x
+        dx = -dx; 
       }
-
-      currentX += dx; // Cập nhật vị trí x
-      currentY += dy; // Cập nhật vị trí y
+      
+      currentX += dx; 
+      currentY += dy; 
       distanceTraveled += Math.sqrt(dx * dx + dy * dy);
-      //  console.log(distanceTraveled);
-
-      points.push({ x: currentX, y: currentY }); // Thêm điểm vào danh sách
+      points.push({ x: currentX, y: currentY }); 
+  
+      
     }
 
     return points;

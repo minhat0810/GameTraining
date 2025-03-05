@@ -24,7 +24,7 @@ export class GameManager {
         onClick: () => this.openSettings(),
       },
       {
-        text: "How to Play",
+        text: "Exit",
         x: canvas.width / 2,
         y: canvas.height / 2 + 90,
         width: 200,
@@ -117,7 +117,7 @@ export class GameManager {
     this.context.fillStyle = "#fff";
     this.context.font = "bold 48px robo";
     this.context.textAlign = "center";
-    this.context.fillText("Pika Shooter", this.canvas.width / 2, 100);
+    this.context.fillText("PikaBall", this.canvas.width / 2, 100);
 
     // Vẽ các nút
     this.buttons.forEach((button) => {
@@ -167,5 +167,81 @@ export class GameManager {
 
   isGameStarted() {
     return this.gameStarted;
+  }
+
+  drawEndGame(score) {
+    // Vẽ background mờ
+    this.context.fillStyle = "rgba(0, 0, 0, 0.8)";
+    this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+    // Vẽ tiêu đề "Game Over"
+    this.context.fillStyle = "#fff";
+    this.context.font = "bold 48px robo";
+    this.context.textAlign = "center";
+    this.context.fillText("END GAME", this.canvas.width / 2, 100);
+
+    // Hiển thị điểm số
+    // this.context.font = "32px robo";
+    // this.context.fillText(`Score: ${score}`, this.canvas.width / 2, 180);
+
+    // Tạo các nút cho màn hình end game
+    const endGameButtons = [
+      {
+        text: "Play Again",
+        x: this.canvas.width / 2,
+        y: this.canvas.height / 2,
+        width: 200,
+        height: 50,
+        hovered: false,
+        onClick: () => this.restartGame(),
+      },
+      {
+        text: "Main Menu",
+        x: this.canvas.width / 2,
+        y: this.canvas.height / 2 + 70,
+        width: 200,
+        height: 50,
+        hovered: false,
+        onClick: () => this.returnToMainMenu(),
+      }
+    ];
+
+    // Vẽ các nút
+    endGameButtons.forEach((button) => {
+      // Vẽ background nút
+      this.context.fillStyle = button.hovered ? "#4CAF50" : "#2E7D32";
+      this.context.beginPath();
+      this.context.roundRect(
+        button.x - button.width / 2,
+        button.y - button.height / 2,
+        button.width,
+        button.height,
+        20
+      );
+      this.context.fill();
+
+      // Vẽ text nút
+      this.context.fillStyle = "#fff";
+      this.context.font = "24px robo";
+      this.context.textAlign = "center";
+      this.context.textBaseline = "middle";
+      this.context.fillText(button.text, button.x, button.y);
+    });
+  }
+
+  restartGame() {
+    this.gameStarted = true;
+    this.isVisible = false;
+    this.timesShoot = 0;
+    setTimeout(() => {
+      gameState.setShoot(true);
+    }, 100);
+  }
+
+  returnToMainMenu() {
+    this.gameStarted = false;
+    this.isVisible = true;
+    this.timesShoot = 0;
+    this.draw();
   }
 }

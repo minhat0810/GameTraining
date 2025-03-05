@@ -6,19 +6,19 @@ import { CollisionManager } from "./CollisionManager.js";
 import { AudioManager } from "./AudioManager.js";
 
 export class InputController {
-  constructor(canvas, updateRotationToMouse,shoot,queue,getRandomColor,collisionManager,map) {
+  constructor(canvas, updateRotationToMouse, shoot, queue, getRandomColor, collisionManager, map) {
     this.canvas = canvas;
     this.updateRotationToMouse = updateRotationToMouse;
     this.mouseX = 0;
     this.mouseY = 0;
-   // this.isShoot = isShoot;
+    // this.isShoot = isShoot;
     this.shoot = shoot;
     this.queue = queue;
- //   this.shooting = shooting;
+    // this.shooting = shooting;
     this.getRandomColor = getRandomColor;
-   // this.predictBullet = predictBullet;
-  //  this.shootBullet = shootBullet;
-   // this.bullets = bullets;
+    // this.predictBullet = predictBullet;
+    // this.shootBullet = shootBullet;
+    // this.bullets = bullets;
     this.keys = {};
     this.bullets = [];
     this.collisionManager = collisionManager;
@@ -27,21 +27,30 @@ export class InputController {
     window.addEventListener("keydown", (e) => (this.keys[e.key] = true));
     window.addEventListener("keyup", (e) => (this.keys[e.key] = false));
 
-     window.addEventListener("mousemove", (e) => this.updateRotationToMouse(e));
+    window.addEventListener("mousemove", (e) => this.updateRotationToMouse(e));
 
     window.addEventListener("click", (e) => {
-    if (gameState.getShoot()) { 
+      if (gameState.getShoot()) { 
         const sound = new AudioManager();
         sound.loadSound('shoot', '../assets/sound/shoot2.wav');
         sound.playSound('shoot')
-        this.shooting = this.queue.dequeue();
+        let shooting = this.queue.dequeue();
         const nextBall = this.getRandomColor();
         this.queue.enqueue(nextBall);
 
-        const predictBullet = new Ball(210, 570, 10, 0, queue.front(), 0, 0, () => console.log(123141423));
+        const predictBullet = new Ball(
+          210, 
+          580, 
+          10, 
+          `../assets/img/${queue.front()}.png`,
+          queue.front(), 
+          0, 
+          0, 
+          () => console.log(123141423)
+        );
         nextBullet.setBullet(predictBullet); 
 
-        this.shootBullet(this.shooting,shoot,canvas,this.ballRadius,e);
+        this.shootBullet(shooting, shoot, canvas, this.ballRadius, e);
         gameState.setShoot(false); 
       }
     });
@@ -59,17 +68,25 @@ export class InputController {
   getMouseY() {
     return this.mouseY;
   }
-  shootBullet(color,shoot,canvas,ballRadius,event) {
-    const angle = shoot.calculateAngleToMouse(event.clientX - canvas.offsetLeft,event.clientY - canvas.offsetTop); 
 
-    let bullet = new Ball(canvas.width / 2,canvas.height - 60,17.5,null,color,1000,angle,this.map.checkMerge.bind(this.map));
+  shootBullet(color, shoot, canvas, ballRadius, event) {
+    const angle = shoot.calculateAngleToMouse(event.clientX - canvas.offsetLeft, event.clientY - canvas.offsetTop); 
+
+    let bullet = new Ball(
+      canvas.width / 2,
+      canvas.height - 105,
+      17,
+      `../assets/img/${color}.png`,
+      color,
+      1000,
+      angle,
+      this.map.checkMerge.bind(this.map)
+    );
     this.collisionManager.addCollider(bullet.collider);
-    gameState.updateTimes();
-   // console.log(gameState.times());
+    
+   // gameState.updateTimes();
     
     this.map.balls.push(bullet);
   } 
 
 }
-
-

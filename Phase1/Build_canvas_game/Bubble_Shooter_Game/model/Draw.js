@@ -1,5 +1,4 @@
 
-
 export class Draw {
   constructor(context, map, ballRadius, collisionManager) {
     this.context = context;
@@ -51,23 +50,23 @@ export class Draw {
     this.context.restore();
   }
 
-  drawBullet(bullet) {
-    if (this.image) {
-      context.drawImage(
-        this.image,
-        this.x - this.radius,
-        this.y - this.radius,
-        this.radius * 2,
-        this.radius * 2
-      );
-    } else {
-      context.beginPath();
-      context.arc(this.x, this.y + this.radius, this.radius, 0, 2 * Math.PI);
-      context.fillStyle = this.color; // Dùng màu sắc được truyền vào
-      context.fill();
-      context.lineWidth = 2; // Độ dày của viền
-      context.strokeStyle = "black"; // Màu viền
-      context.stroke();
-    }
-  }
+  // drawBullet(bullet) {
+  //   if (this.image) {
+  //     context.drawImage(
+  //       this.image,
+  //       this.x - this.radius,
+  //       this.y - this.radius,
+  //       this.radius * 2,
+  //       this.radius * 2
+  //     );
+  //   } else {
+  //     context.beginPath();
+  //     context.arc(this.x, this.y + this.radius, this.radius, 0, 2 * Math.PI);
+  //     context.fillStyle = this.color; 
+  //     context.fill();
+  //     context.lineWidth = 2;
+  //     context.strokeStyle = "black"; 
+  //     context.stroke();
+  //   }
+  // }
 }

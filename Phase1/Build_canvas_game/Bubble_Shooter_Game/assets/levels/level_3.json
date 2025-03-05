@@ -1,0 +1,122 @@
+[
+[
+    { "type": "key", "colorIndex": 6 ,"row": 0, "col": 0},
+    { "type": "bubble", "colorIndex": 1 ,"row": 0, "col": 1},
+    { "type": "bubble", "colorIndex": 2 ,"row": 0, "col": 2},
+    { "type": "bubble", "colorIndex": 1 ,"row": 0, "col": 3},
+    { "type": "bubble", "colorIndex": 1 ,"row": 0, "col": 4},
+    { "type": "key", "colorIndex": 6 ,"row": 0, "col": 5},
+    { "type": "bubble", "colorIndex": 1 ,"row": 0, "col": 6},
+    { "type": "bubble", "colorIndex": 2 ,"row": 0, "col": 7},
+    { "type": "bubble", "colorIndex": 1 ,"row": 0, "col": 8},
+    { "type": "key", "colorIndex": 6 ,"row": 0, "col": 9}
+  ],
+  [
+    { "type": "bubble", "colorIndex": 2 , "row": 1, "col": 1},
+    { "type": "key", "colorIndex": 6 , "row": 1, "col": 2},
+    { "type": "bubble", "colorIndex": 4 , "row": 1, "col": 3},
+    { "type": "bubble", "colorIndex": 2 , "row": 1, "col": 4},
+    { "type": "bubble", "colorIndex": 2 , "row": 1, "col": 5},
+    { "type": "bubble", "colorIndex": 2 , "row": 1, "col": 6},
+    { "type": "bubble", "colorIndex": 2 , "row": 1, "col": 7},
+    { "type": "bubble", "colorIndex": 4 , "row": 1, "col": 8},
+    { "type": "key", "colorIndex": 6 , "row": 1, "col": 9},
+    { "type": "bubble", "colorIndex": 2 , "row": 1, "col": 10}
+  ],
+  [
+    { "type": "bubble", "colorIndex": 3 , "row": 2, "col": 1},
+    { "type": "bubble", "colorIndex": 3 ,    "row": 2, "col": 2},
+    { "type": "bubble", "colorIndex": 3 , "row": 2, "col": 3},
+    { "type": "bubble", "colorIndex": 3 , "row": 2, "col": 4},
+    { "type": "bubble", "colorIndex": 5 , "row": 2, "col": 5},
+    { "type": "bubble", "colorIndex": 5 , "row": 2, "col": 6},
+    { "type": "bubble", "colorIndex": 3,  "row": 2, "col": 7 },
+    { "type": "bubble", "colorIndex": 3 , "row": 2, "col": 8},
+    { "type": "bubble", "colorIndex": 3 ,    "row": 2, "col": 9},
+    { "type": "bubble", "colorIndex": 3 , "row": 2, "col": 10}
+  ],
+  [
+    { "type": "bubble", "colorIndex": 1 , "row": 3, "col": 1},
+    { "type": "bubble", "colorIndex": 1 , "row": 3, "col": 2},
+    { "type": "bubble", "colorIndex": 1 , "row": 3, "col": 3},
+    { "type": "bubble", "colorIndex": 1 , "row": 3, "col": 4},
+    { "type": "empty", "colorIndex": 0 , "row": 3, "col": 5},
+    { "type": "empty", "colorIndex": 0 , "row": 3, "col": 6},
+    { "type": "bubble", "colorIndex": 1 , "row": 3, "col": 7},
+    { "type": "bubble", "colorIndex": 1 , "row": 3, "col": 8},
+    { "type": "bubble", "colorIndex": 1 , "row": 3, "col": 9},
+    { "type": "bubble", "colorIndex": 1 , "row": 3, "col": 10}
+  ],
+  [
+    { "type": "bubble", "colorIndex": 4 , "row": 4, "col": 1},
+    { "type": "bubble", "colorIndex": 4 , "row": 4, "col": 2},
+    { "type": "bubble", "colorIndex": 5 , "row": 4, "col": 3},
+    { "type": "bubble", "colorIndex": 5 , "row": 4, "col": 4},
+    { "type": "empty", "colorIndex": 0 , "row": 4, "col": 5},
+    { "type": "empty", "colorIndex": 0 , "row": 4, "col": 6},
+    { "type": "bubble", "colorIndex": 5 , "row": 4, "col": 7},
+    { "type": "bubble", "colorIndex": 5 , "row": 4, "col": 8},
+    { "type": "bubble", "colorIndex": 4 , "row": 4, "col": 9},
+    { "type": "bubble", "colorIndex": 4 , "row": 4, "col": 10}
+  ],
+  [
+    { "type": "bubble", "colorIndex": 1 ,"row": 0, "col": 0},
+    { "type": "bubble", "colorIndex": 1 ,"row": 0, "col": 1},
+    { "type": "bubble", "colorIndex": 1 ,"row": 0, "col": 2},
+    { "type": "bubble", "colorIndex": 3 ,"row": 0, "col": 3},
+    { "type": "bubble", "colorIndex": 4 ,"row": 0, "col": 4},
+    { "type": "bubble", "colorIndex": 5 ,"row": 0, "col": 5},
+    { "type": "bubble", "colorIndex": 1 ,"row": 0, "col": 6},
+    { "type": "bubble", "colorIndex": 1 ,"row": 0, "col": 7},
+    { "type": "bubble", "colorIndex": 1 ,"row": 0, "col": 8},
+    { "type": "bubble", "colorIndex": 1 ,"row": 0, "col": 9}
+  ],
+  [
+    { "type": "bubble", "colorIndex": 2 , "row": 1, "col": 1},
+    { "type": "key", "colorIndex": 6 , "row": 1, "col": 2},
+    { "type": "bubble", "colorIndex": 2 , "row": 1, "col": 3},
+    { "type": "bubble", "colorIndex": 2 , "row": 1, "col": 4},
+    { "type": "bubble", "colorIndex": 2 , "row": 1, "col": 5},
+    { "type": "bubble", "colorIndex": 2 , "row": 1, "col": 6},
+    { "type": "bubble", "colorIndex": 2 , "row": 1, "col": 7},
+    { "type": "bubble", "colorIndex": 2 , "row": 1, "col": 8},
+    { "type": "key", "colorIndex": 6 , "row": 1, "col": 9},
+    { "type": "bubble", "colorIndex": 2 , "row": 1, "col": 10}
+  ],
+  [
+    { "type": "bubble", "colorIndex": 3 , "row": 2, "col": 1},
+    { "type": "bubble", "colorIndex": 3 ,    "row": 2, "col": 2},
+    { "type": "bubble", "colorIndex": 1 , "row": 2, "col": 3},
+    { "type": "bubble", "colorIndex": 3 , "row": 2, "col": 4},
+    { "type": "bubble", "colorIndex": 4 , "row": 2, "col": 5},
+    { "type": "bubble", "colorIndex": 3 , "row": 2, "col": 6},
+    { "type": "bubble", "colorIndex": 3,  "row": 2, "col": 7 },
+    { "type": "bubble", "colorIndex": 1 , "row": 2, "col": 8},
+    { "type": "bubble", "colorIndex": 2 ,    "row": 2, "col": 9},
+    { "type": "bubble", "colorIndex": 3 , "row": 2, "col": 10}
+  ],
+  [
+    { "type": "bubble", "colorIndex": 1 , "row": 3, "col": 1},
+    { "type": "bubble", "colorIndex": 1 , "row": 3, "col": 2},
+    { "type": "bubble", "colorIndex": 1 , "row": 3, "col": 3},
+    { "type": "bubble", "colorIndex": 1 , "row": 3, "col": 4},
+    { "type": "empty", "colorIndex": 0 , "row": 3, "col": 5},
+    { "type": "empty", "colorIndex": 0 , "row": 3, "col": 6},
+    { "type": "bubble", "colorIndex": 1 , "row": 3, "col": 7},
+    { "type": "bubble", "colorIndex": 1 , "row": 3, "col": 8},
+    { "type": "bubble", "colorIndex": 1 , "row": 3, "col": 9},
+    { "type": "bubble", "colorIndex": 1 , "row": 3, "col": 10}
+  ],
+  [
+    { "type": "bubble", "colorIndex": 4 , "row": 4, "col": 1},
+    { "type": "bubble", "colorIndex": 4 , "row": 4, "col": 2},
+    { "type": "bubble", "colorIndex": 5 , "row": 4, "col": 3},
+    { "type": "bubble", "colorIndex": 5 , "row": 4, "col": 4},
+    { "type": "empty", "colorIndex": 0 , "row": 4, "col": 5},
+    { "type": "empty", "colorIndex": 0 , "row": 4, "col": 6},
+    { "type": "bubble", "colorIndex": 5 , "row": 4, "col": 7},
+    { "type": "bubble", "colorIndex": 5 , "row": 4, "col": 8},
+    { "type": "bubble", "colorIndex": 4 , "row": 4, "col": 9},
+    { "type": "bubble", "colorIndex": 4 , "row": 4, "col": 10}
+  ]
+]

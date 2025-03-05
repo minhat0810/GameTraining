@@ -1,39 +1,39 @@
 export class BallPrediction {
   constructor() {
-    this.items = []; // Khởi tạo mảng
+    this.items = [];
   }
 
   enqueue(element) {
-    this.items.push(element); // Thêm phần tử vào cuối hàng đợi
+    this.items.push(element);
   }
 
   dequeue() {
     if (this.isEmpty()) {
       return "Queue is empty";
     }
-    return this.items.shift(); // Lấy phần tử đầu tiên và xóa nó khỏi mảng
+    return this.items.shift(); 
   }
 
   isEmpty() {
-    return this.items.length === 0; // Kiểm tra hàng đợi có rỗng không
+    return this.items.length === 0; 
   }
 
   front() {
     if (this.isEmpty()) {
       return "Queue is empty";
     }
-    return this.items[0]; // Lấy phần tử đầu mà không xóa
+    return this.items[0]; 
   }
 
   size() {
-    return this.items.length; // Trả về kích thước hàng đợi
+    return this.items.length; 
   }
 
   clear() {
-    this.items = []; // Xóa tất cả phần tử
+    this.items = []; 
   }
 
   print() {
-    console.log(this.items.toString()); // In ra hàng đợi
+    console.log(this.items.toString());
   }
 }
